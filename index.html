@@ -1,0 +1,2376 @@
+
+
+<!DOCTYPE html>
+<html lang="uz" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sog'liqni Saqlash Vazirligi - Epidemik Monitoring</title>
+    
+    <!-- Google Font: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Remix Icon CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f1f5f9;
+        }
+        
+        /* Scrollbarni yashirish */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Glassmorphism navigatsiya paneli */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* Animatsiyali dropdownlar */
+        .dropdown-animate {
+            transform-origin: top right;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Faol navigatsiya elementi */
+        .nav-item-active {
+            background-color: rgba(37, 99, 235, 0.1);
+            color: #2563eb !important;
+            border-radius: 12px !important;
+        }
+
+        /* Segmentlar uchun rangli diagonal chiziqlar */
+        .striped-blue {
+            background: repeating-linear-gradient(45deg, #60a5fa, #60a5fa 6px, #3b82f6 6px, #3b82f6 12px);
+        }
+        .striped-purple {
+            background: repeating-linear-gradient(45deg, #c084fc, #c084fc 6px, #a855f7 6px, #a855f7 12px);
+        }
+        .striped-yellow {
+            background: repeating-linear-gradient(45deg, #fde047, #fde047 6px, #eab308 6px, #eab308 12px);
+        }
+        .striped-green {
+            background: repeating-linear-gradient(45deg, #a3e635, #a3e635 6px, #84cc16 6px, #84cc16 12px);
+        }
+
+        /* Smooth popup transform transition */
+        .popup-scale {
+            transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+        }
+
+        /* Maxsus dropdown menyular uchun chiroyli ko'rinish */
+        .custom-dropdown-list {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            max-height: 220px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen py-4 md:py-8">
+
+    <!-- Asosiy mobil ilova konteyneri -->
+    <div class="w-full max-w-md min-h-screen bg-[#F8FAFC] shadow-2xl relative pb-24 border-x border-slate-100 flex flex-col justify-between overflow-x-hidden rounded-none md:rounded-[40px] md:min-h-[850px] md:max-h-[850px] md:h-[850px]">
+        
+        <!-- YUQORI KO'K PANEL -->
+        <div class="bg-gradient-to-b from-[#0B63E5] via-[#094fc1] to-[#063b9c] text-white px-5 pt-4 pb-6 rounded-b-[20px] shadow-lg relative z-40 shrink-0">
+            
+            <!-- Davlat logotipi va xavfsizlik nishoni -->
+            <div class="flex justify-between items-center text-[9px] font-semibold tracking-wider uppercase opacity-85 mb-4">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                    <span>Sog'liqni Saqlash Vazirligi</span>
+                </div>
+                <span>Tizim Himoyalangan</span>
+            </div>
+
+            <!-- Profil ma'lumoti va bildirishnomalar -->
+            <div class="flex justify-between items-center mb-5 relative">
+                <div class="flex items-center gap-2.5">
+                    <div class="relative cursor-pointer">
+                        <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=150" alt="Avatar" class="w-11 h-11 rounded-[12px] border-2 border-white/30 object-cover shadow-sm transition-transform active:scale-95">
+                        <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-blue-700 rounded-full"></span>
+                    </div>
+                    <div>
+                        <h4 class="text-[9px] text-blue-200 font-medium tracking-wide">Mas'ul Shifokor</h4>
+                        <h2 class="text-xs font-bold text-white hover:text-blue-100 transition-colors cursor-pointer">Dr. Sherzod Alimov</h2>
+                    </div>
+                </div>
+                
+                <!-- Bildirishnomalar tugmasi va uning drowdown paneli -->
+                <div class="relative">
+                    <button id="notification-btn" class="w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-[12px] flex items-center justify-center transition-all active:scale-95 relative" aria-label="Notifications">
+                        <i class="ri-notification-3-line text-lg"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border border-blue-600 animate-pulse"></span>
+                    </button>
+                    
+                    <!-- Notification dropdown -->
+                    <div id="notification-dropdown" class="absolute right-0 mt-3 w-72 bg-white rounded-[12px] shadow-2xl border border-slate-100 p-4 hidden z-50 text-slate-800 dropdown-animate scale-95 origin-top-right">
+                        <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
+                            <h3 class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                                <i class="ri-notification-line text-blue-600"></i>
+                                <span>Bildirishnomalar</span>
+                            </h3>
+                            <span class="text-[9px] text-emerald-600 font-extrabold bg-emerald-50 px-2 py-0.5 rounded-[10px]">YANGI 2 TA</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex gap-3 p-2 hover:bg-slate-50 rounded-[10px] transition-all cursor-pointer">
+                                <div class="w-8 h-8 rounded-[10px] bg-rose-50 flex items-center justify-center text-rose-500 shrink-0">
+                                    <i class="ri-error-warning-line text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-[11px] font-bold text-slate-700 leading-tight">G'ijduvonda o'sish aniqlandi</p>
+                                    <p class="text-[9px] text-slate-400 mt-0.5">Yangi o'choq nazoratga olindi</p>
+                                </div>
+                                <span class="w-1.5 h-1.5 bg-rose-500 rounded-full mt-1.5 shrink-0"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Qidiruv paneli -->
+            <div class="flex gap-2">
+                <div class="relative flex-1">
+                    <i class="ri-search-2-line absolute left-4 top-1/2 -translate-y-1/2 text-blue-200 text-base"></i>
+                    <input type="text" id="dashboard-search" placeholder="Kasallik yoki tumanni izlang..." class="w-full pl-11 pr-4 py-3 bg-white/10 hover:bg-white/15 focus:bg-white focus:text-slate-800 border border-transparent rounded-[12px] text-xs text-white placeholder-blue-200 focus:placeholder-slate-400 focus:outline-none transition-all font-medium">
+                </div>
+                
+                <!-- Filtrlar dropdown tugmasi -->
+                <div class="relative">
+                    <button id="filter-btn" class="w-11 h-11 bg-white/10 hover:bg-white/20 text-white rounded-[12px] flex items-center justify-center transition-all active:scale-95" aria-label="Filters">
+                        <i class="ri-equalizer-line text-lg"></i>
+                    </button>
+                    
+                    <!-- Custom Filter dropdown -->
+                    <div id="filter-dropdown" class="absolute right-0 mt-3 w-64 bg-white rounded-[12px] shadow-2xl border border-slate-100 p-4 hidden z-50 text-slate-800 dropdown-animate scale-95 origin-top-right">
+                        <h3 class="font-bold text-xs text-slate-800 mb-3 pb-1.5 border-b border-slate-100">Saralash</h3>
+                        <div class="space-y-3">
+                            <div class="space-y-1">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Saralash tartibi</label>
+                                <div class="relative" id="dropdown-sort">
+                                    <button type="button" onclick="toggleCustomDropdown('dropdown-sort-menu')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-[10px] text-xs font-semibold text-slate-700 flex justify-between items-center focus:outline-none">
+                                        <span id="selected-sort-label">Yuqori holatlar</span>
+                                        <i class="ri-arrow-down-s-line text-slate-400"></i>
+                                    </button>
+                                    <div id="dropdown-sort-menu" class="absolute hidden w-full mt-1 bg-white border border-slate-200 rounded-[10px] shadow-lg z-50 py-1">
+                                        <button onclick="selectSortOrder('high-to-low', 'Yuqori holatlar')" class="w-full text-left px-3 py-2 text-xs hover:bg-blue-50 hover:text-blue-600 transition-colors">Yuqori holatlar</button>
+                                        <button onclick="selectSortOrder('low-to-high', 'Kam holatlar')" class="w-full text-left px-3 py-2 text-xs hover:bg-blue-50 hover:text-blue-600 transition-colors">Kam holatlar</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="apply-filters-btn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-[10px] transition-all mt-1">
+                                Filtrni qo'llash
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DYNAMIC MAIN BODY CONTENT -->
+        <main class="flex-1 overflow-y-auto no-scrollbar px-5 pb-6">
+            
+            <!-- TAB 1: DASHBOARD -->
+            <div id="tab-dashboard" class="tab-content space-y-5 pt-4">
+
+                <!-- Hudud monitoringi selektori -->
+                <div class="bg-white rounded-[12px] p-4 flex items-center justify-between border border-slate-100 relative shadow-sm">
+                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div class="w-8 h-8 rounded-[10px] bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                            <i class="ri-map-pin-line text-base"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Hudud monitoringi</p>
+                            <h3 id="selected-region-name" class="text-xs font-bold text-slate-800 truncate leading-tight pr-1">Butun Buxoro</h3>
+                        </div>
+                    </div>
+                    
+                    <!-- Hudud filtr tugmasi -->
+                    <div class="relative shrink-0">
+                        <button id="region-dropdown-btn" class="w-8 h-8 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-[10px] flex items-center justify-center transition-all shadow-sm" aria-label="Region Switcher">
+                            <i class="ri-filter-3-line text-sm"></i>
+                        </button>
+                        
+                        <!-- Custom Region Dropdown -->
+                        <div id="region-custom-dropdown" class="absolute right-0 mt-2 w-52 bg-white rounded-[12px] shadow-2xl border border-slate-100 py-1 hidden z-50 text-slate-800 dropdown-animate max-h-64 overflow-y-auto no-scrollbar">
+                            <!-- JS orqali to'ldiriladi -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EPIDEMIK MONITORING CARD GRID -->
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-[11px] font-bold text-slate-800 uppercase tracking-wider">Kasallik monitoring tahlili</h3>
+                        <button class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold px-3 py-1 rounded-[10px] text-[10px] flex items-center gap-1 shadow-sm">
+                            <span>Oxirgi hafta</span>
+                            <i class="ri-arrow-down-s-line"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Card 1: Jami kasallar (Yashil) -->
+                        <div class="bg-white rounded-[12px] border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
+                            <div class="bg-[#EBFDF5] text-[#047857] h-8 px-3 py-1 flex items-center gap-1.5 text-[11px] font-bold">
+                                <i class="ri-user-line text-xs"></i>
+                                <span>Jami kasallar</span>
+                            </div>
+                            <div class="p-3.5 flex flex-col justify-between flex-1">
+                                <h2 class="text-2xl font-bold text-slate-800 leading-none mt-1" id="stat-patients" data-target="1240">1240</h2>
+                                <div class="flex justify-between items-center mt-3">
+                                    <span class="text-[9px] text-slate-400 font-medium leading-none">Ko'rsatgich</span>
+                                    <span class="bg-[#ECFDF5] text-[#059669] text-[9px] font-bold px-1.5 py-0.5 rounded-[6px]" id="trend-patients">↑ 20%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Manbali kasallar (Sariq) -->
+                        <div class="bg-white rounded-[12px] border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
+                            <div class="bg-[#FEF9C3] text-[#854D0E] h-8 px-3 py-1 flex items-center gap-1.5 text-[11px] font-bold">
+                                <i class="ri-shield-user-line text-xs"></i>
+                                <span>Manbali kasallar</span>
+                            </div>
+                            <div class="p-3.5 flex flex-col justify-between flex-1">
+                                <h2 class="text-2xl font-bold text-slate-800 leading-none mt-1" id="stat-new" data-target="920">920</h2>
+                                <div class="flex justify-between items-center mt-3">
+                                    <span class="text-[9px] text-slate-400 font-medium leading-none">Ko'rsatgich</span>
+                                    <span class="bg-[#FEF2F2] text-[#DC2626] text-[9px] font-bold px-1.5 py-0.5 rounded-[6px]" id="trend-new">↓ 12%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Manbasiz kasallar (Pushti) -->
+                        <div class="bg-white rounded-[12px] border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
+                            <div class="bg-[#FEE2E2] text-[#991B1B] h-8 px-3 py-1 flex items-center gap-1.5 text-[11px] font-bold">
+                                <i class="ri-error-warning-line text-xs"></i>
+                                <span>Manbasiz kasallar</span>
+                            </div>
+                            <div class="p-3.5 flex flex-col justify-between flex-1">
+                                <h2 class="text-2xl font-bold text-slate-800 leading-none mt-1" id="stat-critical" data-target="320">320</h2>
+                                <div class="flex justify-between items-center mt-3">
+                                    <span class="text-[9px] text-slate-400 font-medium leading-none">Ko'rsatgich</span>
+                                    <span class="bg-[#FEF2F2] text-[#DC2626] text-[9px] font-bold px-1.5 py-0.5 rounded-[6px]" id="trend-critical">↓ 9%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4: Shifokor ko'rigi (Binafsha) -->
+                        <div class="bg-white rounded-[12px] border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
+                            <div class="bg-[#F3E8FF] text-[#6B21A8] h-8 px-3 py-1 flex items-center gap-1.5 text-[11px] font-bold">
+                                <i class="ri-calendar-check-line text-xs"></i>
+                                <span>Shifokor ko'rigi</span>
+                            </div>
+                            <div class="p-3.5 flex flex-col justify-between flex-1">
+                                <h2 class="text-2xl font-bold text-slate-800 leading-none mt-1" id="stat-appointments" data-target="432">432</h2>
+                                <div class="flex justify-between items-center mt-3">
+                                    <span class="text-[9px] text-slate-400 font-medium leading-none">Ko'rsatgich</span>
+                                    <span class="bg-[#ECFDF5] text-[#059669] text-[9px] font-bold px-1.5 py-0.5 rounded-[6px]" id="trend-appointments">↑ 13%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEGMENTlangan progress paneli -->
+                <div class="bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col">
+                    <div class="flex justify-between items-center px-5 pt-5 pb-3">
+                        <div>
+                            <p class="text-slate-400 text-[11px] font-medium leading-none mb-1">Umumiy taqsimot</p>
+                            <h2 class="text-xl font-bold text-slate-800 leading-none" id="segment-total-label">105 ta joriy holat</h2>
+                        </div>
+                        <button onclick="switchTab('kasallar')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold px-3 py-1.5 rounded-[10px] text-[10px] flex items-center gap-1 transition-all">
+                            <i class="ri-group-line"></i>
+                            <span>Bemorlar ro'yxati</span>
+                        </button>
+                    </div>
+
+                    <!-- Diagonal chiziqli segmentlar -->
+                    <div class="flex gap-1 h-5 px-5 mt-2">
+                        <div id="segment-1" class="flex-[55] rounded-l-[6px] rounded-r-[2px] striped-blue transition-all duration-500"></div>
+                        <div id="segment-2" class="flex-[25] rounded-[2px] striped-purple transition-all duration-500"></div>
+                        <div id="segment-3" class="flex-[15] rounded-[2px] striped-yellow transition-all duration-500"></div>
+                        <div id="segment-4" class="flex-[10] rounded-r-[6px] rounded-l-[2px] striped-green transition-all duration-500"></div>
+                    </div>
+
+                    <!-- Legend tafsilotlari -->
+                    <div class="px-5 py-4 space-y-2.5 text-xs font-semibold text-slate-700">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#3b82f6]"></span>
+                                <span>Qabulga kelganlar</span>
+                            </div>
+                            <span class="text-slate-400 font-medium" id="val-segment-1">55 ta shaxs</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#a855f7]"></span>
+                                <span>Shifoxonadagilar</span>
+                            </div>
+                            <span class="text-slate-400 font-medium" id="val-segment-2">25 ta shaxs</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#eab308]"></span>
+                                <span>Uy sharoitidagilar</span>
+                            </div>
+                            <span class="text-slate-400 font-medium" id="val-segment-3">15 ta shaxs</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#84cc16]"></span>
+                                <span>Sog'ayganlar</span>
+                            </div>
+                            <span class="text-slate-400 font-medium" id="val-segment-4">10 ta shaxs</span>
+                        </div>
+                    </div>
+
+                    <div onclick="switchTab('statistika')" class="border border-slate-100 rounded-[10px] py-3 mx-5 mb-5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 text-center cursor-pointer transition-all shadow-sm">
+                        To'liq statistika
+                    </div>
+                </div>
+
+                <!-- YILLIK KO'RSATKICH GRAFIK KARD -->
+                <div class="bg-white rounded-[12px] border border-slate-100 shadow-sm flex flex-col relative">
+                    <div class="flex justify-between items-center px-5 pt-5 pb-1">
+                        <div>
+                            <p class="text-slate-400 text-[11px] font-medium leading-none mb-1">Oylik tahliliy dinamika</p>
+                            <h2 class="text-xs font-bold text-slate-800 leading-none">Yillik statistika (Interaktiv)</h2>
+                        </div>
+                        <span class="bg-blue-50 text-blue-600 text-[9px] font-extrabold px-2 py-1 rounded-[6px] flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-ping"></span>
+                            Nuqtani bosing
+                        </span>
+                    </div>
+                    
+                    <p class="text-[9px] text-slate-400 px-5 mb-3">Grafik ustidagi istalgan oy nuqtasini bosib, tahliliy darchani oching.</p>
+
+                    <!-- Line Chart Canvas -->
+                    <div class="h-48 px-4 pb-2 relative">
+                        <canvas id="diseaseChart" style="display: block; width: 100%; height: 100%;"></canvas>
+                    </div>
+
+                    <div onclick="switchTab('statistika')" class="border border-slate-100 rounded-[10px] py-3 mx-5 mb-5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 text-center cursor-pointer transition-all shadow-sm">
+                        Batafsil ko'rish
+                    </div>
+                </div>
+
+                <div id="quick-search-feedback" class="mt-3 bg-blue-50/50 rounded-[10px] p-3 border border-blue-100 text-xs text-slate-700 hidden leading-relaxed font-medium shadow-sm"></div>
+
+            </div>
+
+
+            <!-- TAB 2: HUDUDLAR (GEOGRAPHICAL BREAKDOWN) -->
+            <div id="tab-hududlar" class="tab-content hidden space-y-4 pt-4">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800">Hududlar Bo'yicha Tahlil</h2>
+                    <p class="text-[11px] text-slate-400">Viloyatdagi tumanlar kesimidagi ko'rsatkichlar (Tumanni tanlang)</p>
+                </div>
+
+                <div class="relative">
+                    <i class="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="district-filter-input" onkeyup="filterDistricts()" placeholder="Tuman nomini yozing..." class="w-full pl-10 pr-4 py-3 bg-slate-50 rounded-[12px] text-xs border border-slate-100 font-semibold text-slate-700 focus:outline-none focus:bg-white focus:border-slate-200 transition-all">
+                </div>
+
+                <!-- Hududlar ro'yxati (Dynamic full list) -->
+                <div class="space-y-3.5 max-h-[500px] overflow-y-auto no-scrollbar pb-10" id="district-list-container">
+                    <!-- JS orqali barcha 12 hudud chiroyli kartochka bo'lib yaratiladi -->
+                </div>
+            </div>
+
+
+            <!-- TAB 3: KASALLAR RO'YXATI -->
+            <div id="tab-kasallar" class="tab-content hidden space-y-4 pt-4">
+                
+                <!-- Bemorlar sarlavhasi va Kasal Qo'shish tugmasi -->
+                <div class="flex justify-between items-center shrink-0">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800">Bemorlar Royxati</h2>
+                        <p class="text-[11px] text-slate-400">Kasallangan va nazoratdagi bemorlar</p>
+                    </div>
+                    <button onclick="openNewPatientModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-emerald-500/10 active:scale-95 transition-all">
+                        <i class="ri-user-add-line text-sm"></i>
+                        <span>Kasal Qo'shish</span>
+                    </button>
+                </div>
+
+                <!-- TOP CARDS IN PATIENTS TAB -->
+                <div class="grid grid-cols-3 gap-2 shrink-0">
+                    <div class="bg-amber-50 rounded-[12px] border border-amber-100 p-2.5 text-center shadow-sm">
+                        <span class="text-[8px] font-bold text-amber-500 uppercase block leading-tight">Qabul kutilmoqda</span>
+                        <h3 id="patient-card-awaiting" class="text-base font-extrabold text-amber-800 mt-0.5">0</h3>
+                    </div>
+                    <div class="bg-emerald-50 rounded-[12px] border border-emerald-100 p-2.5 text-center shadow-sm">
+                        <span class="text-[8px] font-bold text-emerald-500 uppercase block leading-tight">Qabul qilingan</span>
+                        <h3 id="patient-card-accepted" class="text-base font-extrabold text-emerald-800 mt-0.5">0</h3>
+                    </div>
+                    <div class="bg-blue-50 rounded-[12px] border border-blue-100 p-2.5 text-center shadow-sm">
+                        <span class="text-[8px] font-bold text-blue-500 uppercase block leading-tight">Jami kasallar</span>
+                        <h3 id="patient-card-total" class="text-base font-extrabold text-blue-800 mt-0.5">0</h3>
+                    </div>
+                </div>
+
+                <!-- FILTER & SEARCH PANEL -->
+                <div class="bg-white rounded-[16px] p-4 border border-slate-100 shadow-sm space-y-4">
+                    
+                    <!-- Search Mode Tabs -->
+                    <div class="flex bg-slate-100 rounded-[10px] p-1">
+                        <button onclick="switchSearchTab('passport')" id="btn-search-tab-passport" class="flex-1 py-1.5 text-[10px] font-bold rounded-[8px] transition-all bg-white text-blue-600 shadow-sm">
+                            Pasport Bo'yicha
+                        </button>
+                        <button onclick="switchSearchTab('pinfl')" id="btn-search-tab-pinfl" class="flex-1 py-1.5 text-[10px] font-bold rounded-[8px] transition-all text-slate-500 hover:text-slate-800">
+                            JShShIR (PINFL)
+                        </button>
+                    </div>
+
+                    <!-- Passport Search Inputs -->
+                    <div id="search-input-passport-group" class="space-y-1.5">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Pasport Seriyasi va Raqami</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="search-passport-series" placeholder="AA" maxlength="2" class="w-16 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-[10px] text-center uppercase text-xs font-bold focus:outline-none focus:bg-white focus:border-blue-500 transition-colors">
+                            <input type="number" id="search-passport-number" placeholder="1234567" class="flex-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-[10px] text-xs font-semibold focus:outline-none focus:bg-white focus:border-blue-500 transition-colors" oninput="if(this.value.length > 7) this.value = this.value.slice(0,7)">
+                        </div>
+                    </div>
+
+                    <!-- PINFL Search Input -->
+                    <div id="search-input-pinfl-group" class="space-y-1.5 hidden">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">14 xonali JShShIR kodi</label>
+                        <div class="relative">
+                            <i class="ri-key-line absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="number" id="search-pinfl" placeholder="Masalan: 31204923180054" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-[10px] text-xs font-semibold focus:outline-none focus:bg-white focus:border-blue-500 transition-colors" oninput="if(this.value.length > 14) this.value = this.value.slice(0,14)">
+                        </div>
+                    </div>
+
+                    <!-- District Selection Filter - CUSTOM DROPDOWN -->
+                    <div class="space-y-1.5 relative">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Tuman Bo'yicha Filtr</label>
+                        <div class="relative" id="dropdown-filter-district">
+                            <button type="button" onclick="toggleCustomDropdown('dropdown-filter-district-menu')" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-[10px] text-xs font-semibold text-slate-700 flex justify-between items-center focus:outline-none focus:bg-white focus:border-blue-500 transition-colors">
+                                <span id="selected-filter-district-label" data-value="all">Barcha hududlar</span>
+                                <i class="ri-arrow-down-s-line text-slate-400 transition-transform"></i>
+                            </button>
+                            <div id="dropdown-filter-district-menu" class="absolute hidden w-full mt-1 bg-white border border-slate-200 rounded-[10px] shadow-lg z-50 custom-dropdown-list">
+                                <!-- JS orqali to'ldiriladi -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="clearPatientFilters()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold rounded-[10px] transition-all">
+                            Tozalash
+                        </button>
+                        <button onclick="executePatientSearch()" class="flex-[2] py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-[10px] transition-all flex items-center justify-center gap-1.5 shadow-md shadow-blue-500/10">
+                            <i class="ri-search-2-line"></i>
+                            <span>Qidirish</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TABLE/LIST OF PATIENTS (Show ONLY Ism-Familiya and Eye icon) -->
+                <div class="bg-white rounded-[16px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                    <div class="p-4 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                        <h4 class="text-xs font-bold text-slate-800">Bemorlar ro'yxati</h4>
+                        <span id="pagination-info" class="text-[9px] font-bold text-slate-400">1-20 dan 80 ta</span>
+                    </div>
+
+                    <div id="patient-list-rows" class="divide-y divide-slate-50 max-h-[300px] overflow-y-auto no-scrollbar">
+                        <!-- Dynamic list rows populated by JS -->
+                    </div>
+
+                    <!-- PAGINATION CONTROLS -->
+                    <div class="p-3.5 bg-slate-50/50 border-t border-slate-100 flex justify-between items-center text-xs shrink-0">
+                        <button id="btn-prev-page" onclick="prevPage()" class="px-3 py-1.5 bg-white border border-slate-200 rounded-[10px] font-bold text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center gap-0.5">
+                            <i class="ri-arrow-left-s-line text-sm"></i> Orqaga
+                        </button>
+                        <span id="page-num-display" class="font-extrabold text-slate-700 text-xs">Sahifa 1 / 4</span>
+                        <button id="btn-next-page" onclick="nextPage()" class="px-3 py-1.5 bg-white border border-slate-200 rounded-[10px] font-bold text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center gap-0.5">
+                            Oldinga <i class="ri-arrow-right-s-line text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- TAB 4: STATISTIKA -->
+            <div id="tab-statistika" class="tab-content hidden space-y-4 pt-4">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800">Statistik Tahlillar</h2>
+                    <p class="text-[11px] text-slate-400">Kasallanish holatining demografik ko'rinishi</p>
+                </div>
+
+                <!-- Yosh guruhlari -->
+                <div class="bg-white rounded-[12px] p-5 border border-slate-100 shadow-sm space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-50 pb-3">
+                        <div class="w-7 h-7 rounded-[10px] bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <i class="ri-user-line text-sm"></i>
+                        </div>
+                        <h3 class="text-xs font-bold text-slate-800">Yosh Guruhlari Bo'yicha</h3>
+                    </div>
+                    
+                    <div class="space-y-4 text-xs">
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-slate-700 font-semibold text-[11px]">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 bg-indigo-500 rounded-full inline-block"></span>
+                                    Bolalar (0-14 yosh)
+                                </span>
+                                <span class="text-indigo-600 font-bold">18%</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="bg-indigo-500 h-full rounded-full" style="width: 18%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-slate-700 font-semibold text-[11px]">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 bg-blue-600 rounded-full inline-block"></span>
+                                    Kattalar (15-60 yosh)
+                                </span>
+                                <span class="text-blue-600 font-bold">70%</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="bg-blue-600 h-full rounded-full" style="width: 70%"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-slate-700 font-semibold text-[11px]">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-2 h-2 bg-emerald-500 rounded-full inline-block"></span>
+                                    Keksalar (60+ yosh)
+                                </span>
+                                <span class="text-emerald-600 font-bold">12%</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full rounded-full" style="width: 12%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kasallanganlar Jinsi Tahlili -->
+                <div class="bg-white rounded-[12px] p-5 border border-slate-100 shadow-sm space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-50 pb-3">
+                        <div class="w-7 h-7 rounded-[10px] bg-rose-50 flex items-center justify-center text-rose-600">
+                            <i class="ri-women-line text-sm"></i>
+                        </div>
+                        <h3 class="text-xs font-bold text-slate-800">Jins Bo'yicha Tahlil</h3>
+                    </div>
+                    
+                    <div class="space-y-3 text-xs">
+                        <div class="flex justify-between text-[11px] font-bold text-slate-600">
+                            <span>Erkaklar (55%)</span>
+                            <span>Ayollar (45%)</span>
+                        </div>
+                        <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
+                            <div class="bg-blue-500 h-full" style="width: 55%"></div>
+                            <div class="bg-rose-400 h-full" style="width: 45%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- TAB 5: HISOBOTLAR -->
+            <div id="tab-hisobotlar" class="tab-content hidden space-y-4 pt-4">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800">Tizim Hisobotlari</h2>
+                    <p class="text-[11px] text-slate-400">Monitoring hujjatlarini tayyorlash</p>
+                </div>
+
+                <div class="bg-white rounded-[12px] p-5 border border-slate-100 shadow-sm space-y-5">
+                    <div class="space-y-4 text-xs">
+                        
+                        <!-- Custom Dropdown: Sana diapazoni -->
+                        <div class="space-y-1 relative">
+                            <label class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Sana diapazoni</label>
+                            <button id="report-date-btn" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-[10px] text-xs font-semibold text-slate-700 flex justify-between items-center hover:bg-slate-100 transition-all focus:outline-none">
+                                <span id="selected-report-date">Oxirgi 7 kunlik</span>
+                                <i class="ri-arrow-down-s-line text-slate-400 text-sm"></i>
+                            </button>
+                            <div id="report-date-options" class="hidden absolute left-0 w-full mt-1 bg-white border border-slate-100 rounded-[10px] shadow-lg z-50 py-1 scale-95 origin-top transition-all">
+                                <button onclick="selectReportDate('Oxirgi 7 kunlik')" class="w-full text-left px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 font-semibold transition-colors text-slate-700">Oxirgi 7 kunlik</button>
+                                <button onclick="selectReportDate('Oxirgi 30 kunlik')" class="w-full text-left px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 font-semibold transition-colors text-slate-700">Oxirgi 30 kunlik</button>
+                                <button onclick="selectReportDate('Oxirgi 90 kunlik')" class="w-full text-left px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 font-semibold transition-colors text-slate-700">Oxirgi 90 kunlik</button>
+                            </div>
+                        </div>
+
+                        <!-- Custom Dropdown: Hududlar -->
+                        <div class="space-y-1 relative">
+                            <label class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Hududlar bo'yicha</label>
+                            <button id="report-region-btn" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-[10px] text-xs font-semibold text-slate-700 flex justify-between items-center hover:bg-slate-100 transition-all focus:outline-none">
+                                <span id="selected-report-region">Butun Buxoro</span>
+                                <i class="ri-arrow-down-s-line text-slate-400 text-sm"></i>
+                            </button>
+                            <div id="report-region-options" class="hidden absolute left-0 w-full mt-1 bg-white border border-slate-100 rounded-[10px] shadow-lg z-50 py-1 scale-95 origin-top transition-all max-h-52 overflow-y-auto no-scrollbar">
+                                <!-- JS orqali to'ldiriladi -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <button onclick="generateReportSimulation()" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-[10px] text-xs font-bold transition-all flex items-center justify-center gap-2">
+                        <i class="ri-file-chart-line"></i>
+                        <span>Hisobotni Shakllantirish</span>
+                    </button>
+                </div>
+
+                <!-- Generated Report Simulation State -->
+                <div id="report-generation-state" class="hidden space-y-4">
+                    <div class="bg-blue-50/50 rounded-[10px] p-5 border border-blue-100 text-center space-y-2" id="report-loader">
+                        <div class="inline-block animate-spin rounded-full h-6 w-6 border-3 border-blue-600 border-t-transparent"></div>
+                        <p class="text-[11px] font-bold text-blue-900">Hisobot shakllantirilmoqda...</p>
+                    </div>
+
+                    <div class="bg-slate-900 rounded-[10px] p-4 text-white space-y-3 hidden" id="report-output-card">
+                        <div class="flex justify-between items-start border-b border-white/10 pb-2">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-200">Shakllantirilgan Hujjat</h4>
+                                <p class="text-[9px] text-slate-400 mt-0.5">ID: SSV-REPORT-2026</p>
+                            </div>
+                            <span class="bg-emerald-500/10 text-emerald-400 text-[9px] font-extrabold px-2 py-0.5 rounded-[10px] uppercase">Tayyor</span>
+                        </div>
+                        <div class="space-y-1.5 text-[11px]">
+                            <div class="flex justify-between"><span class="text-slate-400">Yaratildi:</span><span class="font-semibold">Hozirgina</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Mas'ul xodim:</span><span class="font-semibold">Dr. S. Alimov</span></div>
+                        </div>
+                        <button onclick="window.print()" class="w-full py-2 bg-white text-slate-950 font-bold rounded-[10px] text-xs flex items-center justify-center gap-1.5">
+                            <i class="ri-download-cloud-2-line"></i>
+                            <span>Chop Etish / Yuklab Olish</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Dynamic Bottom Navigation Menu -->
+        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] max-w-md glass-nav shadow-2xl rounded-[18px] py-1.5 px-2 flex justify-between items-center z-45 border border-slate-200/50">
+            <!-- Tab 1: Dashboard -->
+            <button onclick="switchTab('dashboard')" class="nav-item flex-1 flex flex-col items-center justify-center py-1.5 text-slate-400 transition-all duration-300 focus:outline-none nav-item-active" data-tab="dashboard">
+                <i class="ri-apps-2-line text-lg"></i>
+                <span class="text-[8px] font-bold tracking-tight mt-0.5">Asosiy</span>
+            </button>
+
+            <!-- Tab 2: Hududlar -->
+            <button onclick="switchTab('hududlar')" class="nav-item flex-1 flex flex-col items-center justify-center py-1.5 text-slate-400 transition-all duration-300 focus:outline-none" data-tab="hududlar">
+                <i class="ri-map-2-line text-lg"></i>
+                <span class="text-[8px] font-bold tracking-tight mt-0.5">Hududlar</span>
+            </button>
+
+            <!-- Tab 3: Kasallar ro'yxati -->
+            <button onclick="switchTab('kasallar')" class="nav-item flex-1 flex flex-col items-center justify-center py-1.5 text-slate-400 transition-all duration-300 focus:outline-none" data-tab="kasallar">
+                <i class="ri-group-line text-lg"></i>
+                <span class="text-[8px] font-bold tracking-tight mt-0.5">Kasallar</span>
+            </button>
+
+            <!-- Tab 4: Statistika -->
+            <button onclick="switchTab('statistika')" class="nav-item flex-1 flex flex-col items-center justify-center py-1.5 text-slate-400 transition-all duration-300 focus:outline-none" data-tab="statistika">
+                <i class="ri-pulse-line text-lg"></i>
+                <span class="text-[8px] font-bold tracking-tight mt-0.5">Tahlil</span>
+            </button>
+
+            <!-- Tab 5: Hisobotlar -->
+            <button onclick="switchTab('hisobotlar')" class="nav-item flex-1 flex flex-col items-center justify-center py-1.5 text-slate-400 transition-all duration-300 focus:outline-none" data-tab="hisobotlar">
+                <i class="ri-file-chart-line text-lg"></i>
+                <span class="text-[8px] font-bold tracking-tight mt-0.5">Hisobot</span>
+            </button>
+        </nav>
+
+        <!-- DYNAMIC CHART POPUP MODAL -->
+        <div id="chart-detail-modal" class="fixed md:absolute inset-0 bg-slate-950/50 backdrop-blur-[3px] z-[100] flex items-center justify-center p-5 hidden opacity-0 transition-all duration-300">
+            <div class="bg-white rounded-[24px] w-full max-w-[310px] shadow-2xl overflow-hidden border border-slate-100 flex flex-col transform scale-95 popup-scale duration-300">
+                
+                <!-- Minimalist Clean Header -->
+                <div class="p-4 flex justify-between items-center border-b border-slate-100">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
+                            <i class="ri-calendar-line text-base"></i>
+                        </div>
+                        <div>
+                            <span class="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Oylik tahlil</span>
+                            <h4 id="modal-month-name" class="text-xs font-bold text-slate-800 leading-tight">Avgust oyi</h4>
+                        </div>
+                    </div>
+                    <button onclick="closeChartPopup()" class="w-6 h-6 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-all active:scale-95" aria-label="Close">
+                        <i class="ri-close-line text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="p-4 space-y-3.5">
+                    <!-- Cases count -->
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Bemorlar soni</span>
+                            <div class="flex items-baseline gap-1 mt-0.5">
+                                <span id="modal-cases-val" class="text-2xl font-extrabold text-slate-800">175</span>
+                                <span class="text-[10px] font-semibold text-slate-500">ta holat</span>
+                            </div>
+                        </div>
+                        <div id="modal-trend-badge" class="px-2 py-1 rounded-lg flex flex-col items-end bg-rose-50 text-rose-600">
+                            <span id="modal-trend-val" class="text-xs font-extrabold">↑ 9%</span>
+                            <span class="text-[7px] font-bold text-slate-400 uppercase">dinamika</span>
+                        </div>
+                    </div>
+
+                    <!-- Risk level bar -->
+                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100/80 flex items-center justify-between text-[11px]">
+                        <div class="flex items-center gap-1.5">
+                            <span id="modal-risk-dot" class="w-2 h-2 rounded-full animate-ping"></span>
+                            <span class="font-bold text-slate-600">Xavf darajasi:</span>
+                        </div>
+                        <span id="modal-risk-lbl" class="font-extrabold uppercase px-1.5 py-0.5 rounded text-[9px]"></span>
+                    </div>
+                </div>
+
+                <!-- Footer buttons -->
+                <div class="px-4 pb-4 pt-1">
+                    <button onclick="closeChartPopup()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] rounded-xl transition-all shadow-sm flex items-center justify-center gap-1">
+                        <span>Oynani yopish</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PATIENT DETAIL EDIT/VIEW MODAL -->
+        <div id="patient-detail-modal" class="fixed md:absolute inset-0 bg-slate-950/50 backdrop-blur-[3px] z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all duration-300">
+            <div class="bg-white rounded-[24px] w-full max-w-[370px] shadow-2xl overflow-hidden border border-slate-100 flex flex-col transform scale-95 popup-scale duration-300 max-h-[90%]">
+                
+                <!-- Modal Header -->
+                <div class="p-4 flex justify-between items-center border-b border-slate-100 shrink-0 bg-slate-50">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs" id="patient-modal-avatar">
+                            AB
+                        </div>
+                        <div>
+                            <span class="text-[8px] text-slate-400 block font-bold uppercase tracking-wider">Bemor Kartasi</span>
+                            <h4 id="patient-modal-title" class="text-xs font-bold text-slate-800 truncate max-w-[190px]">Bemor Ma'lumotlari</h4>
+                        </div>
+                    </div>
+                    <button onclick="closePatientModal()" class="w-6 h-6 rounded-full bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-all" aria-label="Close">
+                        <i class="ri-close-line text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Body (Scrollable form) -->
+                <div class="p-4 space-y-3.5 overflow-y-auto no-scrollbar flex-1 text-xs">
+                    
+                    <!-- Ism va Familiya -->
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Ism Familiya</label>
+                        <div class="relative">
+                            <i class="ri-user-line absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="patient-input-name" class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-800 transition-colors bg-slate-50/50 focus:bg-white">
+                        </div>
+                    </div>
+
+                    <!-- ALOHIDA QATOR: TUG'ILGAN SANA (Kun, Oy, Yil) -->
+                    <div class="space-y-1 bg-slate-50/60 p-3 rounded-[12px] border border-slate-100">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Tug'ilgan Sana (Kun / Oy / Yil)</label>
+                        <div class="grid grid-cols-3 gap-2 mt-1">
+                            <!-- Kun -->
+                            <div class="space-y-0.5">
+                                <span class="text-[8px] font-bold text-slate-400">Kun</span>
+                                <input type="number" id="patient-input-day" min="1" max="31" placeholder="Kun" class="w-full px-2.5 py-2 border border-slate-200 rounded-[8px] text-center font-bold text-slate-800 focus:outline-none focus:border-blue-500 bg-white">
+                            </div>
+                            <!-- Oy (Custom Dropdown) -->
+                            <div class="space-y-0.5 relative">
+                                <span class="text-[8px] font-bold text-slate-400">Oy</span>
+                                <div class="relative" id="dropdown-birth-month">
+                                    <button type="button" onclick="toggleCustomDropdown('dropdown-birth-month-menu')" class="w-full px-2 py-2 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none focus:border-blue-500">
+                                        <span id="selected-birth-month-label" data-value="1">Yanvar</span>
+                                        <i class="ri-arrow-down-s-line text-slate-400"></i>
+                                    </button>
+                                    <div id="dropdown-birth-month-menu" class="absolute hidden w-36 left-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
+                                        <!-- JS orqali oylar to'ldiriladi -->
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Yil -->
+                            <div class="space-y-0.5">
+                                <span class="text-[8px] font-bold text-slate-400">Yil</span>
+                                <input type="number" id="patient-input-year" min="1900" max="2026" placeholder="Yil" class="w-full px-2.5 py-2 border border-slate-200 rounded-[8px] text-center font-bold text-slate-800 focus:outline-none focus:border-blue-500 bg-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PASPORT SERIYA & RAQAM -->
+                    <div class="space-y-1 bg-blue-50/30 p-3 rounded-[12px] border border-blue-100/50">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Pasport Hujjati</label>
+                        <div class="grid grid-cols-3 gap-2 mt-1">
+                            <div class="col-span-1">
+                                <span class="text-[8px] font-bold text-slate-400">Seriya</span>
+                                <input type="text" id="patient-input-passport-series" maxlength="2" placeholder="AA" class="w-full px-2.5 py-2 border border-slate-200 rounded-[8px] text-center uppercase font-extrabold text-blue-600 focus:outline-none focus:border-blue-500 bg-white">
+                            </div>
+                            <div class="col-span-2">
+                                <span class="text-[8px] font-bold text-slate-400">Raqam</span>
+                                <input type="number" id="patient-input-passport-number" placeholder="1234567" class="w-full px-3 py-2 border border-slate-200 rounded-[8px] font-semibold text-slate-800 focus:outline-none focus:border-blue-500 bg-white" oninput="if(this.value.length > 7) this.value = this.value.slice(0,7)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JShShIR (PINFL - 14 XONALI) -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">JShShIR (PINFL)</label>
+                            <span class="text-[8px] font-bold text-blue-500 uppercase tracking-wider bg-blue-50 px-1.5 py-0.5 rounded">14 xonali son</span>
+                        </div>
+                        <div class="relative">
+                            <i class="ri-bank-card-line absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="number" id="patient-input-pinfl" placeholder="31204923180054" class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-bold text-slate-800 transition-colors bg-slate-50/50 focus:bg-white" oninput="if(this.value.length > 14) this.value = this.value.slice(0,14)">
+                        </div>
+                    </div>
+
+                    <!-- YASHASH HUDUDI -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1 relative">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Yashash Tumani</label>
+                            <div class="relative" id="dropdown-patient-district">
+                                <button type="button" onclick="toggleCustomDropdown('dropdown-patient-district-menu')" class="w-full px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-[10px] text-[11px] font-semibold text-slate-700 flex justify-between items-center focus:outline-none focus:bg-white focus:border-blue-500">
+                                    <span id="selected-patient-district-label" data-value="">Tuman</span>
+                                    <i class="ri-arrow-down-s-line text-slate-400"></i>
+                                </button>
+                                <div id="dropdown-patient-district-menu" class="absolute hidden w-48 left-0 mt-1 bg-white border border-slate-200 rounded-[10px] shadow-lg z-[120] custom-dropdown-list">
+                                    <!-- JS orqali to'ldiriladi -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Mahalla / Qishloq</label>
+                            <input type="text" id="patient-input-village" placeholder="Navbahor MFY" class="w-full px-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-800 transition-colors bg-slate-50/50 focus:bg-white">
+                        </div>
+                    </div>
+
+                    <!-- ALOHIDA QATOR: KASALLANGAN VAQTI (Sana Div Dropdown tizimi) -->
+                    <div class="space-y-1 bg-rose-50/40 p-3 rounded-[12px] border border-rose-100/50">
+                        <label class="text-[9px] font-bold text-rose-500 uppercase tracking-wide flex items-center gap-1">
+                            <i class="ri-virus-line"></i> Kasallangan Vaqti (Kun / Oy / Yil)
+                        </label>
+                        <div class="grid grid-cols-3 gap-2 mt-1">
+                            <!-- Infection Day Custom Dropdown -->
+                            <div class="space-y-0.5 relative">
+                                <span class="text-[8px] font-bold text-slate-400">Kun</span>
+                                <div class="relative" id="dropdown-inf-day">
+                                    <button type="button" onclick="toggleCustomDropdown('dropdown-inf-day-menu')" class="w-full px-2 py-2.5 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none focus:border-blue-500">
+                                        <span id="selected-inf-day-label" data-value="1">1</span>
+                                        <i class="ri-arrow-down-s-line text-slate-400"></i>
+                                    </button>
+                                    <div id="dropdown-inf-day-menu" class="absolute hidden w-20 left-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
+                                        <!-- JS orqali kunlar (1-31) to'ldiriladi -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Infection Month Custom Dropdown -->
+                            <div class="space-y-0.5 relative">
+                                <span class="text-[8px] font-bold text-slate-400">Oy</span>
+                                <div class="relative" id="dropdown-inf-month">
+                                    <button type="button" onclick="toggleCustomDropdown('dropdown-inf-month-menu')" class="w-full px-2 py-2.5 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none focus:border-blue-500">
+                                        <span id="selected-inf-month-label" data-value="1">Yanvar</span>
+                                        <i class="ri-arrow-down-s-line text-slate-400"></i>
+                                    </button>
+                                    <div id="dropdown-inf-month-menu" class="absolute hidden w-32 left-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
+                                        <!-- JS orqali oylar to'ldiriladi -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Infection Year Custom Dropdown -->
+                            <div class="space-y-0.5 relative">
+                                <span class="text-[8px] font-bold text-slate-400">Yil</span>
+                                <div class="relative" id="dropdown-inf-year">
+                                    <button type="button" onclick="toggleCustomDropdown('dropdown-inf-year-menu')" class="w-full px-2 py-2.5 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none focus:border-blue-500">
+                                        <span id="selected-inf-year-label" data-value="2026">2026</span>
+                                        <i class="ri-arrow-down-s-line text-slate-400"></i>
+                                    </button>
+                                    <div id="dropdown-inf-year-menu" class="absolute hidden w-24 left-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
+                                        <!-- JS orqali yillar (2020-2026) to'ldiriladi -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Oxirgi kelgan vaqti va holat status dropdowni -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Oxirgi Kelgan Vaqti</label>
+                            <div class="relative">
+                                <i class="ri-time-line absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="text" id="patient-input-lastvisit" class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-800 bg-slate-100 cursor-not-allowed" readonly>
+                            </div>
+                        </div>
+                        <div class="space-y-1 relative">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Hozirgi Holat</label>
+                            <div class="relative" id="dropdown-patient-status">
+                                <button type="button" onclick="toggleCustomDropdown('dropdown-patient-status-menu')" class="w-full px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-[10px] text-[11px] font-bold text-slate-700 flex justify-between items-center focus:outline-none focus:bg-white focus:border-blue-500">
+                                    <span id="selected-patient-status-label" data-value="Qabul kutilmoqda">Qabul kutilmoqda</span>
+                                    <i class="ri-arrow-down-s-line text-slate-400"></i>
+                                </button>
+                                <div id="dropdown-patient-status-menu" class="absolute hidden w-full left-0 mt-1 bg-white border border-slate-200 rounded-[10px] shadow-lg z-[120] py-1">
+                                    <button onclick="selectPatientStatus('Qabul kutilmoqda')" class="w-full text-left px-3 py-2 hover:bg-amber-50 hover:text-amber-700 font-bold transition-colors">Qabul kutilmoqda</button>
+                                    <button onclick="selectPatientStatus('Qabul qilingan')" class="w-full text-left px-3 py-2 hover:bg-emerald-50 hover:text-emerald-700 font-bold transition-colors">Qabul qilingan</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tashxis / Batafsil ma'lumot -->
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Diagnoz va To'liq Tafsilot</label>
+                        <textarea id="patient-input-details" rows="3" class="w-full px-3 py-2 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-700 leading-relaxed bg-slate-50/30 focus:bg-white transition-colors" placeholder="Bemor holatining tahliliy sharhi..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-2 shrink-0">
+                    <button id="btn-modal-call" onclick="actionCallPatient()" class="flex-1 py-2.5 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-xl text-[10px] flex items-center justify-center gap-1 transition-all">
+                        <i class="ri-megaphone-line"></i> Chaqirish
+                    </button>
+                    <button id="btn-modal-delete" onclick="actionDeletePatient()" class="flex-1 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-xl text-[10px] flex items-center justify-center gap-1 transition-all">
+                        <i class="ri-delete-bin-line"></i> O'chirish
+                    </button>
+                    <button onclick="actionSavePatient()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-[10px] flex items-center justify-center gap-1 transition-all shadow-md shadow-emerald-500/10">
+                        <i class="ri-save-line"></i> Saqlash
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CUSTOM PREMIUM TOAST NOTIFICATION SYSTEM -->
+        <div id="custom-toast" class="fixed top-5 left-1/2 -translate-x-1/2 w-[85%] max-w-xs bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700/50 z-[200] flex items-center gap-3 hidden transition-all duration-300 transform scale-95 opacity-0">
+            <div class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center shrink-0" id="toast-icon-bg">
+                <i class="ri-information-line text-lg" id="toast-icon"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-[11px] font-bold leading-tight" id="toast-title">Eslatma</p>
+                <p class="text-[9px] text-slate-300 leading-normal mt-0.5 truncate" id="toast-message"></p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Main JS Application Logic -->
+    <script>
+        // Buxoro viloyatining barcha tumanlari to'liq ro'yxati
+        const bxh_districts = [
+            { key: 'butun_buxoro', name: 'Butun Buxoro', hasMap: false },
+            { key: 'buxoro_shahar', name: 'Buxoro shahar', hasMap: true },
+            { key: 'buxoro_t', name: 'Buxoro tumani', hasMap: true },
+            { key: 'vobkent', name: 'Vobkent tumani', hasMap: true },
+            { key: 'jondor', name: 'Jondor tumani', hasMap: true },
+            { key: 'kogon_t', name: 'Kogon tumani', hasMap: true },
+            { key: 'olot', name: 'Olot tumani', hasMap: true },
+            { key: 'peshku', name: 'Peshku tumani', hasMap: true },
+            { key: 'romitan', name: 'Romitan tumani', hasMap: true },
+            { key: 'shofirkon', name: 'Shofirkon tumani', hasMap: true },
+            { key: 'qorovulbozor', name: 'Qorovulbozor tumani', hasMap: true },
+            { key: 'qorakul', name: 'Qorako‘l tumani', hasMap: true },
+            { key: 'gijduvon', name: 'Gʻijduvon tumani', hasMap: true }
+        ];
+
+        // Oylar ro'yxati
+        const monthsList = [
+            { value: 1, name: "Yanvar" },
+            { value: 2, name: "Fevral" },
+            { value: 3, name: "Mart" },
+            { value: 4, name: "Aprel" },
+            { value: 5, name: "May" },
+            { value: 6, name: "Iyun" },
+            { value: 7, name: "Iyul" },
+            { value: 8, name: "Avgust" },
+            { value: 9, name: "Sentabr" },
+            { value: 10, name: "Oktabr" },
+            { value: 11, name: "Noyabr" },
+            { value: 12, name: "Dekabr" }
+        ];
+
+        // Global variables to track state
+        let currentRegionKey = 'butun_buxoro';
+        let patientSearchTab = 'passport'; // 'passport' or 'pinfl'
+
+        // Data Store containing live statistics dynamic states depending on active region
+        const regionalStatistics = {
+            butun_buxoro: { total_patients: 1240, new_weekly: 920, critical: 320, appointments: 432, total_patients_trend: "↑ 20%", new_weekly_trend: "↓ 12%", critical_trend: "↓ 9%", appointments_trend: "↑ 13%", distribution: { total: 105, qabulda: 55, shifoxona: 25, uyda: 15, sogaygan: 10 }, chartData: [85, 90, 110, 125, 115, 140, 160, 175, 150, 130, 115, 95] },
+            buxoro_shahar: { total_patients: 320, new_weekly: 210, critical: 110, appointments: 130, total_patients_trend: "↑ 12%", new_weekly_trend: "↓ 10%", critical_trend: "↓ 5%", appointments_trend: "↑ 9%", distribution: { total: 30, qabulda: 14, shifoxona: 8, uyda: 5, sogaygan: 3 }, chartData: [20, 25, 30, 32, 28, 35, 40, 45, 38, 35, 29, 23] },
+            buxoro_t: { total_patients: 110, new_weekly: 80, critical: 30, appointments: 45, total_patients_trend: "↑ 8%", new_weekly_trend: "↓ 5%", critical_trend: "↓ 2%", appointments_trend: "↑ 4%", distribution: { total: 12, qabulda: 6, shifoxona: 3, uyda: 2, sogaygan: 1 }, chartData: [8, 9, 10, 12, 11, 14, 15, 18, 14, 12, 10, 8] },
+            vobkent: { total_patients: 95, new_weekly: 70, critical: 25, appointments: 35, total_patients_trend: "↑ 10%", new_weekly_trend: "↓ 8%", critical_trend: "↓ 3%", appointments_trend: "↑ 6%", distribution: { total: 11, qabulda: 5, shifoxona: 3, uyda: 2, sogaygan: 1 }, chartData: [6, 7, 8, 11, 10, 12, 14, 15, 12, 11, 9, 7] },
+            jondor: { total_patients: 130, new_weekly: 95, critical: 35, appointments: 50, total_patients_trend: "↑ 14%", new_weekly_trend: "↓ 9%", critical_trend: "↓ 4%", appointments_trend: "↑ 11%", distribution: { total: 14, qabulda: 7, shifoxona: 4, uyda: 2, sogaygan: 1 }, chartData: [10, 11, 13, 15, 13, 16, 18, 20, 17, 15, 12, 10] },
+            kogon_t: { total_patients: 145, new_weekly: 110, critical: 35, appointments: 62, total_patients_trend: "↑ 12%", new_weekly_trend: "↓ 6%", critical_trend: "↓ 2%", appointments_trend: "↑ 8%", distribution: { total: 27, qabulda: 12, shifoxona: 8, uyda: 4, sogaygan: 3 }, chartData: [10, 12, 11, 14, 13, 16, 18, 20, 17, 15, 14, 11] },
+            olot: { total_patients: 71, new_weekly: 50, critical: 21, appointments: 32, total_patients_trend: "↑ 8%", new_weekly_trend: "↓ 4%", critical_trend: "↓ 1%", appointments_trend: "↑ 5%", distribution: { total: 18, qabulda: 8, shifoxona: 5, uyda: 3, sogaygan: 2 }, chartData: [4, 5, 5, 7, 6, 8, 10, 11, 9, 8, 7, 5] },
+            peshku: { total_patients: 85, new_weekly: 60, critical: 25, appointments: 30, total_patients_trend: "↑ 7%", new_weekly_trend: "↓ 3%", critical_trend: "↓ 2%", appointments_trend: "↑ 4%", distribution: { total: 9, qabulda: 4, shifoxona: 3, uyda: 1, sogaygan: 1 }, chartData: [5, 6, 7, 9, 8, 10, 12, 13, 10, 9, 8, 6] },
+            romitan: { total_patients: 115, new_weekly: 85, critical: 30, appointments: 40, total_patients_trend: "↑ 9%", new_weekly_trend: "↓ 5%", critical_trend: "↓ 2%", appointments_trend: "↑ 6%", distribution: { total: 13, qabulda: 6, shifoxona: 4, uyda: 2, sogaygan: 1 }, chartData: [7, 8, 9, 12, 11, 13, 15, 16, 13, 12, 10, 8] },
+            shofirkon: { total_patients: 125, new_weekly: 90, critical: 35, appointments: 48, total_patients_trend: "↑ 11%", new_weekly_trend: "↓ 7%", critical_trend: "↓ 3%", appointments_trend: "↑ 8%", distribution: { total: 15, qabulda: 8, shifoxona: 4, uyda: 2, sogaygan: 1 }, chartData: [9, 10, 11, 13, 12, 15, 17, 19, 15, 13, 11, 9] },
+            qorovulbozor: { total_patients: 45, new_weekly: 30, critical: 15, appointments: 18, total_patients_trend: "↑ 4%", new_weekly_trend: "↓ 2%", critical_trend: "↓ 1%", appointments_trend: "↑ 3%", distribution: { total: 5, qabulda: 2, shifoxona: 2, uyda: 1, sogaygan: 0 }, chartData: [2, 3, 3, 4, 4, 5, 6, 7, 5, 4, 3, 2] },
+            qorakul: { total_patients: 112, new_weekly: 82, critical: 30, appointments: 42, total_patients_trend: "↑ 9%", new_weekly_trend: "↓ 4%", critical_trend: "↓ 2%", appointments_trend: "↑ 5%", distribution: { total: 12, qabulda: 6, shifoxona: 3, uyda: 2, sogaygan: 1 }, chartData: [8, 9, 10, 12, 11, 13, 15, 17, 14, 12, 10, 8] },
+            gijduvon: { total_patients: 210, new_weekly: 150, critical: 60, appointments: 95, total_patients_trend: "↑ 24%", new_weekly_trend: "↓ 15%", critical_trend: "↓ 12%", appointments_trend: "↑ 18%", distribution: { total: 35, qabulda: 15, shifoxona: 10, uyda: 6, sogaygan: 4 }, chartData: [15, 18, 20, 25, 22, 28, 32, 35, 30, 28, 24, 21] }
+        };
+
+        const monthLabels = ['Yan', 'Feb', 'Mar', 'Apr', 'May', 'Iyn', 'Iyl', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'];
+        const monthFullNames = {
+            'Yan': 'Yanvar', 'Feb': 'Fevral', 'Mar': 'Mart', 'Apr': 'Aprel', 'May': 'May',
+            'Iyn': 'Iyun', 'Iyl': 'Iyul', 'Avg': 'Avgust', 'Sen': 'Sentabr', 'Okt': 'Oktabr',
+            'Noy': 'Noyabr', 'Dek': 'Dekabr'
+        };
+        const riskLevels = {
+            'Yan': { risk: 'Past', color: 'emerald' }, 'Feb': { risk: 'Past', color: 'emerald' },
+            'Mar': { risk: 'O\'rta', color: 'amber' }, 'Apr': { risk: 'O\'rta', color: 'amber' },
+            'May': { risk: 'O\'rta', color: 'amber' }, 'Iyn': { risk: 'Yuqori', color: 'rose' },
+            'Iyl': { risk: 'Yuqori', color: 'rose' }, 'Avg': { risk: 'Yuqori', color: 'rose' },
+            'Sen': { risk: 'O\'rta', color: 'amber' }, 'Okt': { risk: 'O\'rta', color: 'amber' },
+            'Noy': { risk: 'Past', color: 'emerald' }, 'Dek': { risk: 'Past', color: 'emerald' }
+        };
+
+        let originalPatients = [];
+        let filteredPatients = [];
+        let patientsCurrentPage = 1;
+        const patientsPerPage = 20;
+        let selectedPatientId = null; // null bo'lsa yangi bemor yaratiladi
+
+        // O'zbek tilidagi qidiruv matnlarini normalizatsiya qilish funksiyasi (Kogon va G'ijduvonlar muammosiz ishlashi uchun)
+        function cleanUzbekText(text) {
+            if (!text) return "";
+            return text.toLowerCase()
+                .replace(/ʻ/g, '')
+                .replace(/‘/g, '')
+                .replace(/’/g, '')
+                .replace(/['`]/g, '')
+                .trim();
+        }
+
+        // Custom Dropdown universal triggers
+        function toggleCustomDropdown(menuId) {
+            const dropdown = document.getElementById(menuId);
+            const isHidden = dropdown.classList.contains('hidden');
+            
+            // Avval barcha faol dropdownlarni yopamiz
+            document.querySelectorAll('.custom-dropdown-list, [id^="dropdown-sort-menu"], [id^="dropdown-patient-status-menu"]').forEach(el => {
+                if (el.id !== menuId) el.classList.add('hidden');
+            });
+
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+            } else {
+                dropdown.classList.add('hidden');
+            }
+        }
+
+        // Bemorlar simulyatsiya ma'lumotlarini yaratish generatori
+        function generatePatientDatabase() {
+            const ismlar = ["Sardor", "Zilola", "Nodir", "Gulnora", "Shavkat", "Feruza", "Jasur", "Dilshod", "Madina", "Temur", "Lobar", "Bekzod", "Shahnoza", "Rustam", "Otabek", "Malika", "Anvar", "Nigora", "Sherzod", "Dildora", "Bobur", "Kamola", "Siroj", "Guli", "Jamshid", "Zuhra", "Olim", "Munisa"];
+            const familiyalar = ["Olimov", "Toirova", "Jalolov", "Ergasheva", "Rahmonov", "Karimova", "Hasanov", "Saidov", "Umarova", "Soliyev", "Axmedova", "To'rayev", "G'ofurova", "Qodirov", "Mamadaliyev", "Sodiqova", "Abduvaliyev", "Raximova", "Alimov", "Yusupova", "Hamroyev", "Bozorova", "Nazarov", "Xalilova", "Ismoilov", "Qurbonova", "Safarov", "Karimiy"];
+            const qishloqlar = ["Navbahor MFY", "Zarafshon mahallasi", "Bog'ikalon qishlog'i", "Do'stlik ko'chasi", "Firishkent MFY", "Raboti Qalmoq", "Istiqlol ko'chasi", "Yangiobod", "Zarangari MFY", "Dehqonobod"];
+            const tashxislar = [
+                "Isitma, holsizlik, quruq yo'tal aniqlangan. Shifokor tavsiyalari bo'yicha uyda davolanish rejasi tayinlangan.",
+                "Tomoq og'rig'i, burun bitishi va holsizlik. Profilaktik muolajalar boshlangan, nazoratda.",
+                "Tana harorati ko'tarilishi, hidsizlanish. Ikki haftalik izolyatsiya qat'iy belgilangan.",
+                "Nafas qisilishi (yengil darajada), quruq yo'tal va holsizlik. Davolash sxemasi muvaffaqiyatli ketmoqda.",
+                "Sog'ayish arafasida. Profilaktika maqsadida oxirgi tibbiy ko'riklar rejalashtirilgan.",
+                "Kuchli bosh og'rig'i, tana harorati 38 C gacha ko'tarilishi. Dori-darmonlar yetkazildi."
+            ];
+
+            let count = 85;
+            for (let i = 1; i <= count; i++) {
+                const districtObj = bxh_districts[1 + Math.floor(Math.random() * (bxh_districts.length - 1))];
+                const ism = ismlar[Math.floor(Math.random() * ismlar.length)];
+                const familiya = familiyalar[Math.floor(Math.random() * familiyalar.length)];
+                const passSer = String.fromCharCode(65 + Math.floor(Math.random() * 26)) + String.fromCharCode(65 + Math.floor(Math.random() * 26));
+                const passNum = Math.floor(1000000 + Math.random() * 9000000);
+                const birthYear = Math.floor(1965 + Math.random() * 55);
+                const birthMonth = Math.floor(1 + Math.random() * 12);
+                const birthDay = Math.floor(1 + Math.random() * 28);
+
+                let pinfl = "3" + birthYear.toString().slice(2) + "0" + Math.floor(100000000 + Math.random() * 900000000).toString();
+                if(pinfl.length !== 14) pinfl = pinfl.padEnd(14, '0');
+
+                const lastVisit = `2026-05-${Math.floor(10 + Math.random() * 10)} 10:30`;
+                const infectionDate = `2026-05-0${Math.floor(1 + Math.random() * 9)}`;
+                const status = Math.random() > 0.4 ? "Qabul qilingan" : "Qabul kutilmoqda";
+
+                originalPatients.push({
+                    id: i,
+                    fullName: `${ism} ${familiya}`,
+                    birthYear: birthYear,
+                    birthMonth: birthMonth,
+                    birthDay: birthDay,
+                    passportSeries: passSer,
+                    passportNumber: passNum.toString(),
+                    pinfl: pinfl,
+                    districtKey: districtObj.key,
+                    districtName: districtObj.name,
+                    village: qishloqlar[Math.floor(Math.random() * qishloqlar.length)],
+                    lastVisit: lastVisit,
+                    infectionDate: infectionDate,
+                    status: status,
+                    details: tashxislar[Math.floor(Math.random() * tashxislar.length)]
+                });
+            }
+            filteredPatients = [...originalPatients];
+        }
+
+        // Custom Premium Toast Notification logic
+        function showToast(title, message, type = 'info') {
+            const toast = document.getElementById('custom-toast');
+            const tTitle = document.getElementById('toast-title');
+            const tMsg = document.getElementById('toast-message');
+            const tIconBg = document.getElementById('toast-icon-bg');
+            const tIcon = document.getElementById('toast-icon');
+
+            tTitle.textContent = title;
+            tMsg.textContent = message;
+
+            if (type === 'success') {
+                tIconBg.className = "w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0";
+                tIcon.className = "ri-checkbox-circle-line text-lg";
+            } else if (type === 'error') {
+                tIconBg.className = "w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0";
+                tIcon.className = "ri-close-circle-line text-lg";
+            } else if (type === 'warning') {
+                tIconBg.className = "w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0";
+                tIcon.className = "ri-error-warning-line text-lg";
+            } else {
+                tIconBg.className = "w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0";
+                tIcon.className = "ri-information-line text-lg";
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.remove('opacity-0', 'scale-95');
+                toast.classList.add('opacity-100', 'scale-100');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'scale-100');
+                toast.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+
+        // UI Element Refs
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationDropdown = document.getElementById('notification-dropdown');
+        const filterBtn = document.getElementById('filter-btn');
+        const filterDropdown = document.getElementById('filter-dropdown');
+        const regionDropdownBtn = document.getElementById('region-dropdown-btn');
+        const regionCustomDropdown = document.getElementById('region-custom-dropdown');
+        const applyFiltersBtn = document.getElementById('apply-filters-btn');
+
+        const reportDateBtn = document.getElementById('report-date-btn');
+        const reportDateOptions = document.getElementById('report-date-options');
+        const reportRegionBtn = document.getElementById('report-region-btn');
+        const reportRegionOptions = document.getElementById('report-region-options');
+
+        function closeAllDropdowns() {
+            notificationDropdown.classList.add('hidden');
+            filterDropdown.classList.add('hidden');
+            regionCustomDropdown.classList.add('hidden');
+            if (reportDateOptions) reportDateOptions.classList.add('hidden');
+            if (reportRegionOptions) reportRegionOptions.classList.add('hidden');
+            
+            document.querySelectorAll('.custom-dropdown-list, [id^="dropdown-sort-menu"], [id^="dropdown-patient-status-menu"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+        }
+
+        // Dropdown toggle event listeners
+        notificationBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wasHidden = notificationDropdown.classList.contains('hidden');
+            closeAllDropdowns();
+            if (wasHidden) notificationDropdown.classList.remove('hidden');
+        });
+
+        filterBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wasHidden = filterDropdown.classList.contains('hidden');
+            closeAllDropdowns();
+            if (wasHidden) filterDropdown.classList.remove('hidden');
+        });
+
+        regionDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wasHidden = regionCustomDropdown.classList.contains('hidden');
+            closeAllDropdowns();
+            if (wasHidden) regionCustomDropdown.classList.remove('hidden');
+        });
+
+        if(reportDateBtn) {
+            reportDateBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const wasHidden = reportDateOptions.classList.contains('hidden');
+                closeAllDropdowns();
+                if (wasHidden) reportDateOptions.classList.remove('hidden');
+            });
+        }
+
+        if(reportRegionBtn) {
+            reportRegionBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const wasHidden = reportRegionOptions.classList.contains('hidden');
+                closeAllDropdowns();
+                if (wasHidden) reportRegionOptions.classList.remove('hidden');
+            });
+        }
+
+        // Dropdown handlers
+        function selectReportDate(value) {
+            document.getElementById('selected-report-date').textContent = value;
+            closeAllDropdowns();
+        }
+
+        function selectReportRegion(value) {
+            document.getElementById('selected-report-region').textContent = value;
+            closeAllDropdowns();
+        }
+
+        function selectSortOrder(value, label) {
+            document.getElementById('selected-sort-label').textContent = label;
+            document.getElementById('dropdown-sort-menu').classList.add('hidden');
+        }
+
+        document.addEventListener('click', () => {
+            closeAllDropdowns();
+        });
+
+        applyFiltersBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeAllDropdowns();
+            showToast("Muvaffaqiyatli", "Filtrlar muvaffaqiyatli qo'llanildi", "success");
+        });
+
+        // Setup Custom Dropdown Selection handlers
+        function selectFilterDistrict(key, name) {
+            const label = document.getElementById('selected-filter-district-label');
+            label.textContent = name;
+            label.setAttribute('data-value', key);
+            document.getElementById('dropdown-filter-district-menu').classList.add('hidden');
+            // Tanlanganda avtomatik qidirish
+            executePatientSearch();
+        }
+
+        function selectPatientDistrict(key, name) {
+            const label = document.getElementById('selected-patient-district-label');
+            label.textContent = name;
+            label.setAttribute('data-value', key);
+            document.getElementById('dropdown-patient-district-menu').classList.add('hidden');
+        }
+
+        function selectBirthMonth(value, name) {
+            const label = document.getElementById('selected-birth-month-label');
+            label.textContent = name;
+            label.setAttribute('data-value', value);
+            document.getElementById('dropdown-birth-month-menu').classList.add('hidden');
+        }
+
+        function selectInfectionDay(day) {
+            const label = document.getElementById('selected-inf-day-label');
+            label.textContent = day;
+            label.setAttribute('data-value', day);
+            document.getElementById('dropdown-inf-day-menu').classList.add('hidden');
+        }
+
+        function selectInfectionMonth(value, name) {
+            const label = document.getElementById('selected-inf-month-label');
+            label.textContent = name;
+            label.setAttribute('data-value', value);
+            document.getElementById('dropdown-inf-month-menu').classList.add('hidden');
+        }
+
+        function selectInfectionYear(year) {
+            const label = document.getElementById('selected-inf-year-label');
+            label.textContent = year;
+            label.setAttribute('data-value', year);
+            document.getElementById('dropdown-inf-year-menu').classList.add('hidden');
+        }
+
+        function selectPatientStatus(status) {
+            const label = document.getElementById('selected-patient-status-label');
+            label.textContent = status;
+            label.setAttribute('data-value', status);
+            document.getElementById('dropdown-patient-status-menu').classList.add('hidden');
+        }
+
+        // Tuman kartasidan bemorlarni filtrlab ochish funksiyasi
+        function selectDistrictFromCard(key) {
+            const dObj = bxh_districts.find(d => d.key === key);
+            if (dObj) {
+                selectFilterDistrict(dObj.key, dObj.name);
+                switchTab('kasallar');
+            }
+        }
+
+        // Dynamic Region selectors loader for All areas and sub-dropdowns
+        function loadRegionSelectorsAndLists() {
+            const dropdownContainer = document.getElementById('region-custom-dropdown');
+            const districtListContainer = document.getElementById('district-list-container');
+            const filterDistrictMenu = document.getElementById('dropdown-filter-district-menu');
+            const patientDistrictMenu = document.getElementById('dropdown-patient-district-menu');
+            const reportRegionOptionsContainer = document.getElementById('report-region-options');
+            const birthMonthMenu = document.getElementById('dropdown-birth-month-menu');
+            
+            const infDayMenu = document.getElementById('dropdown-inf-day-menu');
+            const infMonthMenu = document.getElementById('dropdown-inf-month-menu');
+            const infYearMenu = document.getElementById('dropdown-inf-year-menu');
+
+            dropdownContainer.innerHTML = '';
+            districtListContainer.innerHTML = '';
+            filterDistrictMenu.innerHTML = '';
+            patientDistrictMenu.innerHTML = '';
+            if(reportRegionOptionsContainer) reportRegionOptionsContainer.innerHTML = '';
+
+            // Barcha tumanlar qidiruv filtri uchun "Barcha" varianti
+            const allBtn = document.createElement('button');
+            allBtn.type = "button";
+            allBtn.className = "w-full text-left px-3 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 transition-colors";
+            allBtn.onclick = () => selectFilterDistrict('all', 'Barcha hududlar');
+            allBtn.textContent = 'Barcha hududlar';
+            filterDistrictMenu.appendChild(allBtn);
+
+            // Boshlang'ich tug'ilgan oylar dropdown yuklash
+            birthMonthMenu.innerHTML = '';
+            monthsList.forEach(m => {
+                const mBtn = document.createElement('button');
+                mBtn.type = "button";
+                mBtn.className = "w-full text-left px-3 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 transition-colors";
+                mBtn.onclick = () => selectBirthMonth(m.value, m.name);
+                mBtn.textContent = m.name;
+                birthMonthMenu.appendChild(mBtn);
+            });
+
+            // Kasallangan kunlar custom dropdown yuklash (1 dan 31 gacha)
+            infDayMenu.innerHTML = '';
+            for (let d = 1; d <= 31; d++) {
+                const dBtn = document.createElement('button');
+                dBtn.type = "button";
+                dBtn.className = "w-full text-left px-3 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 transition-colors";
+                dBtn.onclick = () => selectInfectionDay(d);
+                dBtn.textContent = d;
+                infDayMenu.appendChild(dBtn);
+            }
+
+            // Kasallangan oylar custom dropdown yuklash
+            infMonthMenu.innerHTML = '';
+            monthsList.forEach(m => {
+                const mBtn = document.createElement('button');
+                mBtn.type = "button";
+                mBtn.className = "w-full text-left px-3 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 transition-colors";
+                mBtn.onclick = () => selectInfectionMonth(m.value, m.name);
+                mBtn.textContent = m.name;
+                infMonthMenu.appendChild(mBtn);
+            });
+
+            // Kasallangan yillar custom dropdown yuklash (2020 dan 2026 gacha)
+            infYearMenu.innerHTML = '';
+            for (let y = 2020; y <= 2026; y++) {
+                const yBtn = document.createElement('button');
+                yBtn.type = "button";
+                yBtn.className = "w-full text-left px-3 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 transition-colors";
+                yBtn.onclick = () => selectInfectionYear(y);
+                yBtn.textContent = y;
+                infYearMenu.appendChild(yBtn);
+            }
+
+            bxh_districts.forEach(d => {
+                // 1. Dashboard Custom Switcher Dropdown
+                const btn = document.createElement('button');
+                btn.type = "button";
+                btn.className = "w-full text-left px-4 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 text-slate-700 transition-colors flex items-center justify-between";
+                btn.onclick = () => selectCustomRegion(d.key, d.name);
+                
+                let iconStr = `<i class="ri-map-pin-line text-slate-400"></i>`;
+                if(d.key === 'butun_buxoro') iconStr = `<i class="ri-global-line text-slate-400"></i>`;
+                else if(d.key === 'buxoro_shahar') iconStr = `<i class="ri-building-line text-slate-400"></i>`;
+                
+                btn.innerHTML = `<span>${d.name}</span>${iconStr}`;
+                dropdownContainer.appendChild(btn);
+
+                // 2. Patient Tab District filter selector Custom dropdown
+                if (d.key !== 'butun_buxoro') {
+                    const fBtn = document.createElement('button');
+                    fBtn.type = "button";
+                    fBtn.className = "w-full text-left px-3 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 transition-colors";
+                    fBtn.onclick = () => selectFilterDistrict(d.key, d.name);
+                    fBtn.textContent = d.name;
+                    filterDistrictMenu.appendChild(fBtn);
+                }
+
+                // 3. Patient Modal District editor selector Custom dropdown
+                if (d.key !== 'butun_buxoro') {
+                    const pBtn = document.createElement('button');
+                    pBtn.type = "button";
+                    pBtn.className = "w-full text-left px-3 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 transition-colors";
+                    pBtn.onclick = () => selectPatientDistrict(d.key, d.name);
+                    pBtn.textContent = d.name;
+                    patientDistrictMenu.appendChild(pBtn);
+                }
+
+                // 4. Report Section Dropdown Items
+                if (reportRegionOptionsContainer) {
+                    const rBtn = document.createElement('button');
+                    rBtn.type = "button";
+                    rBtn.className = "w-full text-left px-4 py-2.5 hover:bg-blue-50 hover:text-blue-600 font-semibold transition-colors text-slate-700";
+                    rBtn.onclick = () => selectReportRegion(d.name);
+                    rBtn.textContent = d.name;
+                    reportRegionOptionsContainer.appendChild(rBtn);
+                }
+
+                // 5. Geographical breakdown Cards List
+                if (d.hasMap) {
+                    const stats = regionalStatistics[d.key] || { total_patients: 0, new_weekly: 0, critical: 0 };
+                    
+                    let riskText = "Past Xavf";
+                    let riskBgClass = "text-emerald-600 bg-emerald-50";
+                    let dotPulseClass = "bg-emerald-500";
+                    let progressPercent = 88;
+
+                    if (stats.total_patients > 150) {
+                        riskText = "Yuqori Xavf";
+                        riskBgClass = "text-rose-600 bg-rose-50";
+                        dotPulseClass = "bg-rose-500 animate-ping";
+                        progressPercent = 71;
+                    } else if (stats.total_patients > 90) {
+                        riskText = "O'rta Xavf";
+                        riskBgClass = "text-amber-600 bg-amber-50";
+                        dotPulseClass = "bg-amber-500 animate-pulse";
+                        progressPercent = 78;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white rounded-[12px] p-5 border border-slate-100 shadow-sm space-y-3 district-card cursor-pointer hover:border-blue-300 transition-all active:scale-98";
+                    card.setAttribute('data-name', d.key);
+                    card.onclick = () => selectDistrictFromCard(d.key);
+
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full ${dotPulseClass}"></span>
+                                <h4 class="text-xs font-bold text-slate-800">${d.name}</h4>
+                            </div>
+                            <span class="text-[9px] font-extrabold ${riskBgClass} px-2 py-0.5 rounded-[10px] uppercase">${riskText}</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 py-0.5 text-center">
+                            <div>
+                                <p class="text-[9px] text-slate-400 font-bold uppercase">Kasallar</p>
+                                <p class="text-xs font-bold text-slate-800 mt-0.5">${stats.total_patients} ta</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-slate-400 font-bold uppercase">Zanjir Aniq</p>
+                                <p class="text-xs font-bold text-emerald-600 mt-0.5">${stats.new_weekly} ta</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-slate-400 font-bold uppercase">Manbasiz</p>
+                                <p class="text-xs font-bold text-rose-500 mt-0.5">${stats.critical} ta</p>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[9px] text-slate-500 font-semibold">
+                                <span>Nazorat darajasi</span>
+                                <span>${progressPercent}%</span>
+                            </div>
+                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="bg-blue-600 h-full rounded-full" style="width: ${progressPercent}%"></div>
+                            </div>
+                        </div>
+                    `;
+                    districtListContainer.appendChild(card);
+                }
+            });
+        }
+
+        // Switch custom region for Dashboard
+        function selectCustomRegion(regionKey, regionName) {
+            closeAllDropdowns();
+            
+            document.getElementById('selected-region-name').textContent = regionName;
+            currentRegionKey = regionKey;
+
+            const data = regionalStatistics[regionKey];
+            if (!data) return;
+
+            document.getElementById('stat-patients').setAttribute('data-target', data.total_patients);
+            document.getElementById('stat-new').setAttribute('data-target', data.new_weekly);
+            document.getElementById('stat-critical').setAttribute('data-target', data.critical);
+            document.getElementById('stat-appointments').setAttribute('data-target', data.appointments);
+
+            document.getElementById('trend-patients').textContent = data.total_patients_trend;
+            document.getElementById('trend-new').textContent = data.new_weekly_trend;
+            document.getElementById('trend-critical').textContent = data.critical_trend;
+            document.getElementById('trend-appointments').textContent = data.appointments_trend;
+
+            updateSegmentedBar(data.distribution);
+            triggerStatisticsCounters();
+
+            if (diseaseChartInstance) {
+                diseaseChartInstance.data.datasets[0].data = data.chartData;
+                diseaseChartInstance.update();
+            }
+
+            showToast("Hudud o'zgardi", `${regionName} ma'lumotlari yuklandi.`, "success");
+        }
+
+        function updateSegmentedBar(dist) {
+            document.getElementById('segment-total-label').textContent = `${dist.total} ta joriy holat`;
+            document.getElementById('segment-1').style.flex = dist.qabulda;
+            document.getElementById('segment-2').style.flex = dist.shifoxona || 25;
+            document.getElementById('segment-3').style.flex = dist.uyda || 15;
+            document.getElementById('segment-4').style.flex = dist.sogaygan || 10;
+
+            document.getElementById('val-segment-1').textContent = `${dist.qabulda} ta shaxs`;
+            document.getElementById('val-segment-2').textContent = `${dist.shifoxona || 25} ta shaxs`;
+            document.getElementById('val-segment-3').textContent = `${dist.uyda || 15} ta shaxs`;
+            document.getElementById('val-segment-4').textContent = `${dist.sogaygan || 10} ta shaxs`;
+        }
+
+        // Numerical value smooth counting-up animation
+        function animateCounter(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            let start = 0;
+            const duration = 600;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const currentValue = Math.floor(progress * targetValue);
+                element.textContent = currentValue;
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = targetValue;
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        function triggerStatisticsCounters() {
+            const patients = parseInt(document.getElementById('stat-patients').getAttribute('data-target') || 0);
+            const weekly = parseInt(document.getElementById('stat-new').getAttribute('data-target') || 0);
+            const critical = parseInt(document.getElementById('stat-critical').getAttribute('data-target') || 0);
+            const appointments = parseInt(document.getElementById('stat-appointments').getAttribute('data-target') || 0);
+
+            animateCounter('stat-patients', patients);
+            animateCounter('stat-new', weekly);
+            animateCounter('stat-critical', critical);
+            animateCounter('stat-appointments', appointments);
+        }
+
+        // Initialize Primary Interactive Disease Chart
+        let diseaseChartInstance;
+        function initDiseaseChart() {
+            const canvasElement = document.getElementById('diseaseChart');
+            if (!canvasElement) return;
+
+            const ctx = canvasElement.getContext('2d');
+            const gradientFill = ctx.createLinearGradient(0, 0, 0, 160);
+            gradientFill.addColorStop(0, 'rgba(99, 102, 241, 0.45)'); 
+            gradientFill.addColorStop(0.5, 'rgba(99, 102, 241, 0.15)');
+            gradientFill.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+            const defaultData = regionalStatistics.butun_buxoro.chartData;
+
+            diseaseChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: monthLabels,
+                    datasets: [{
+                        label: 'Ro\'yxatga olinganlar',
+                        data: defaultData,
+                        borderColor: '#6366f1',
+                        borderWidth: 3,
+                        fill: true,
+                        backgroundColor: gradientFill,
+                        tension: 0.4, 
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#6366f1',
+                        pointBorderWidth: 2.5,
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        pointHoverBackgroundColor: '#4f46e5',
+                        pointHoverBorderColor: '#ffffff',
+                        pointHoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    onHover: (event, elements) => {
+                        event.chart.canvas.style.cursor = elements.length ? 'pointer' : 'default';
+                    },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const monthKey = monthLabels[index];
+                            const clickedValue = diseaseChartInstance.data.datasets[0].data[index];
+                            openChartPopup(monthKey, clickedValue);
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                font: { family: 'Poppins', size: 9, weight: '600' },
+                                color: '#64748b'
+                            }
+                        },
+                        y: {
+                            min: 0,
+                            max: 200,
+                            grid: {
+                                color: 'rgba(241, 245, 249, 1)',
+                                borderDash: [4, 4]
+                            },
+                            ticks: {
+                                stepSize: 50,
+                                font: { family: 'Poppins', size: 9, weight: '500' },
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Custom HTML Popup Modal controllers for Disease line chart
+        function openChartPopup(monthKey, value) {
+            const modal = document.getElementById('chart-detail-modal');
+            const innerCard = modal.querySelector('.popup-scale');
+            if (!modal) return;
+
+            const fullName = monthFullNames[monthKey] || monthKey;
+            const meta = riskLevels[monthKey] || { risk: 'Past', color: 'emerald' };
+
+            const dataset = regionalStatistics[currentRegionKey].chartData;
+            const idx = monthLabels.indexOf(monthKey);
+            let trendText = "Barqaror";
+            let isUp = true;
+
+            if (idx > 0) {
+                const prevValue = dataset[idx - 1];
+                if (prevValue > 0) {
+                    const diff = Math.round(((value - prevValue) / prevValue) * 100);
+                    if (diff > 0) {
+                        trendText = `↑ ${diff}%`;
+                        isUp = true;
+                    } else if (diff < 0) {
+                        trendText = `↓ ${Math.abs(diff)}%`;
+                        isUp = false;
+                    } else {
+                        trendText = "0%";
+                        isUp = true;
+                    }
+                }
+            } else {
+                trendText = "Boshlanish";
+                isUp = true;
+            }
+
+            document.getElementById('modal-month-name').textContent = `${fullName} oyi`;
+            document.getElementById('modal-cases-val').textContent = value;
+            document.getElementById('modal-trend-val').textContent = trendText;
+
+            const badge = document.getElementById('modal-trend-badge');
+            if (trendText === "Barqaror" || trendText === "Boshlanish" || trendText === "0%") {
+                badge.className = "px-2 py-1 rounded-lg flex flex-col items-end bg-slate-100 text-slate-700";
+            } else if (isUp) {
+                badge.className = "px-2 py-1 rounded-lg flex flex-col items-end bg-rose-50 text-rose-600";
+            } else {
+                badge.className = "px-2 py-1 rounded-lg flex flex-col items-end bg-emerald-50 text-emerald-600";
+            }
+
+            const dot = document.getElementById('modal-risk-dot');
+            const lbl = document.getElementById('modal-risk-lbl');
+            if (meta.color === 'rose') {
+                dot.className = "w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse";
+                lbl.className = "font-extrabold uppercase px-1.5 py-0.5 rounded text-[9px] bg-rose-50 text-rose-600";
+            } else if (meta.color === 'amber') {
+                dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse";
+                lbl.className = "font-extrabold uppercase px-1.5 py-0.5 rounded text-[9px] bg-amber-50 text-amber-600";
+            } else {
+                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                lbl.className = "font-extrabold uppercase px-1.5 py-0.5 rounded text-[9px] bg-emerald-50 text-emerald-600";
+            }
+            lbl.textContent = meta.risk;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                innerCard.classList.remove('scale-95');
+                innerCard.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeChartPopup() {
+            const modal = document.getElementById('chart-detail-modal');
+            const innerCard = modal.querySelector('.popup-scale');
+            if (!modal) return;
+
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            innerCard.classList.remove('scale-100');
+            innerCard.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 250);
+        }
+
+        document.getElementById('chart-detail-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('chart-detail-modal')) {
+                closeChartPopup();
+            }
+        });
+
+
+        // TAB NAVIGATION CONTROLLER
+        function switchTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
+            }
+
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.getAttribute('data-tab') === tabId) {
+                    item.classList.add('nav-item-active');
+                } else {
+                    item.classList.remove('nav-item-active');
+                }
+            });
+
+            if(tabId === 'kasallar') {
+                updatePatientTab();
+            }
+        }
+
+
+        // KASALLAR BO'LIMI FUNKSIYALARI
+
+        // Search panel tabs switcher
+        function switchSearchTab(tab) {
+            patientSearchTab = tab;
+            const btnPassport = document.getElementById('btn-search-tab-passport');
+            const btnPinfl = document.getElementById('btn-search-tab-pinfl');
+            const groupPassport = document.getElementById('search-input-passport-group');
+            const groupPinfl = document.getElementById('search-input-pinfl-group');
+
+            if(tab === 'passport') {
+                btnPassport.className = "flex-1 py-1.5 text-[10px] font-bold rounded-[8px] transition-all bg-white text-blue-600 shadow-sm";
+                btnPinfl.className = "flex-1 py-1.5 text-[10px] font-bold rounded-[8px] transition-all text-slate-500 hover:text-slate-800";
+                groupPassport.classList.remove('hidden');
+                groupPinfl.classList.add('hidden');
+            } else {
+                btnPinfl.className = "flex-1 py-1.5 text-[10px] font-bold rounded-[8px] transition-all bg-white text-blue-600 shadow-sm";
+                btnPassport.className = "flex-1 py-1.5 text-[10px] font-bold rounded-[8px] transition-all text-slate-500 hover:text-slate-800";
+                groupPassport.classList.add('hidden');
+                groupPinfl.classList.remove('hidden');
+            }
+        }
+
+        // Qidirishni amalga oshirish (Kogon va G'ijduvon harflarini tozalab qidiradi)
+        function executePatientSearch() {
+            const districtVal = document.getElementById('selected-filter-district-label').getAttribute('data-value');
+            
+            let matched = [...originalPatients];
+
+            // 1. Tuman filtri bo'yicha saralash
+            if (districtVal && districtVal !== 'all') {
+                matched = matched.filter(p => p.districtKey === districtVal);
+            }
+
+            // 2. Qidiruv tabi maydonlari bo'yicha tekshirish
+            if(patientSearchTab === 'passport') {
+                const ser = document.getElementById('search-passport-series').value.trim().toUpperCase();
+                const num = document.getElementById('search-passport-number').value.trim();
+
+                if (ser) {
+                    matched = matched.filter(p => p.passportSeries.includes(ser));
+                }
+                if (num) {
+                    matched = matched.filter(p => p.passportNumber.includes(num));
+                }
+            } else {
+                const pinflVal = document.getElementById('search-pinfl').value.trim();
+                if(pinflVal) {
+                    matched = matched.filter(p => p.pinfl.includes(pinflVal));
+                }
+            }
+
+            filteredPatients = matched;
+            patientsCurrentPage = 1;
+            renderPatientList();
+        }
+
+        // Barcha qidiruv filtrlarini tozalash
+        function clearPatientFilters() {
+            document.getElementById('search-passport-series').value = '';
+            document.getElementById('search-passport-number').value = '';
+            document.getElementById('search-pinfl').value = '';
+            
+            // Custom dropdown filterini tiklash
+            const filterLabel = document.getElementById('selected-filter-district-label');
+            filterLabel.textContent = 'Barcha hududlar';
+            filterLabel.setAttribute('data-value', 'all');
+
+            filteredPatients = [...originalPatients];
+            patientsCurrentPage = 1;
+            renderPatientList();
+            showToast("Tozalandi", "Filtrlar bekor qilindi.", "info");
+        }
+
+        // Bemorlar jadvalini yaratib chiqarish
+        function renderPatientList() {
+            const listContainer = document.getElementById('patient-list-rows');
+            if(!listContainer) return;
+
+            listContainer.innerHTML = '';
+
+            const awaitingCount = filteredPatients.filter(p => p.status === 'Qabul kutilmoqda').length;
+            const acceptedCount = filteredPatients.filter(p => p.status === 'Qabul qilingan').length;
+
+            document.getElementById('patient-card-awaiting').textContent = awaitingCount;
+            document.getElementById('patient-card-accepted').textContent = acceptedCount;
+            document.getElementById('patient-card-total').textContent = filteredPatients.length;
+
+            const totalCount = filteredPatients.length;
+            const totalPages = Math.max(1, Math.ceil(totalCount / patientsPerPage));
+
+            if(patientsCurrentPage > totalPages) patientsCurrentPage = totalPages;
+
+            const startIndex = (patientsCurrentPage - 1) * patientsPerPage;
+            const endIndex = Math.min(startIndex + patientsPerPage, totalCount);
+
+            const pageItems = filteredPatients.slice(startIndex, endIndex);
+
+            document.getElementById('pagination-info').textContent = totalCount > 0 ? `${startIndex + 1}-${endIndex} dan ${totalCount} ta` : "0 dan 0 ta";
+            document.getElementById('page-num-display').textContent = `Sahifa ${patientsCurrentPage} / ${totalPages}`;
+
+            document.getElementById('btn-prev-page').disabled = patientsCurrentPage === 1;
+            document.getElementById('btn-next-page').disabled = patientsCurrentPage === totalPages;
+
+            if(totalCount === 0) {
+                listContainer.innerHTML = `
+                    <div class="p-6 text-center text-slate-400 font-medium text-xs">
+                        <i class="ri-user-search-line text-2xl block mb-1 text-slate-300"></i>
+                        Hech qanday bemor topilmadi
+                    </div>
+                `;
+                return;
+            }
+
+            pageItems.forEach((p, idx) => {
+                const initials = p.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                const dotClass = p.status === 'Qabul qilingan' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse';
+
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-3.5 hover:bg-slate-50 transition-all cursor-pointer";
+                row.onclick = () => openPatientModal(p.id);
+
+                row.innerHTML = `
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-[10px] text-slate-600 shrink-0 border border-slate-200">
+                            ${initials}
+                        </div>
+                        <div class="min-w-0">
+                            <h4 class="text-xs font-bold text-slate-800 leading-snug truncate">${p.fullName}</h4>
+                            <div class="flex items-center gap-1.5 mt-0.5 text-[9px] text-slate-400 font-semibold uppercase">
+                                <span>${p.districtName}</span>
+                                <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                <span class="flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full ${dotClass}"></span>
+                                    <span>${p.status}</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="event.stopPropagation(); openPatientModal(${p.id});" class="w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition-all active:scale-90 shadow-sm shrink-0">
+                        <i class="ri-eye-line text-sm"></i>
+                    </button>
+                `;
+                listContainer.appendChild(row);
+            });
+        }
+
+        function prevPage() {
+            if(patientsCurrentPage > 1) {
+                patientsCurrentPage--;
+                renderPatientList();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredPatients.length / patientsPerPage);
+            if(patientsCurrentPage < totalPages) {
+                patientsCurrentPage++;
+                renderPatientList();
+            }
+        }
+
+        function updatePatientTab() {
+            renderPatientList();
+        }
+
+        // YANGI BEMOR QO'SHISH REJIMINI FAOLLASHTIRISH (Modalni tozalash)
+        function openNewPatientModal() {
+            selectedPatientId = null;
+
+            document.getElementById('patient-modal-title').textContent = "Yangi Bemor Qo'shish";
+            document.getElementById('patient-input-name').value = "";
+            document.getElementById('patient-input-day').value = "1";
+            
+            // Tug'ilgan oyi custom dropdowni
+            const monthLabel = document.getElementById('selected-birth-month-label');
+            monthLabel.textContent = "Yanvar";
+            monthLabel.setAttribute('data-value', "1");
+
+            document.getElementById('patient-input-year').value = "1995";
+            document.getElementById('patient-input-passport-series').value = "";
+            document.getElementById('patient-input-passport-number').value = "";
+            document.getElementById('patient-input-pinfl').value = "";
+            
+            // Yashash tumani custom dropdowni (default: Buxoro shahar)
+            const distLabel = document.getElementById('selected-patient-district-label');
+            distLabel.textContent = "Buxoro shahar";
+            distLabel.setAttribute('data-value', "buxoro_shahar");
+
+            document.getElementById('patient-input-village').value = "";
+            document.getElementById('patient-input-lastvisit').value = "Hozirgina qo'shildi";
+            
+            // Kasallangan kun custom dropdowni
+            const infDayLabel = document.getElementById('selected-inf-day-label');
+            infDayLabel.textContent = "1";
+            infDayLabel.setAttribute('data-value', "1");
+
+            // Kasallangan oy custom dropdowni
+            const infMonthLabel = document.getElementById('selected-inf-month-label');
+            infMonthLabel.textContent = "Yanvar";
+            infMonthLabel.setAttribute('data-value', "1");
+
+            // Kasallangan yil custom dropdowni
+            const infYearLabel = document.getElementById('selected-inf-year-label');
+            infYearLabel.textContent = "2026";
+            infYearLabel.setAttribute('data-value', "2026");
+
+            // Status custom dropdowni
+            const statusLabel = document.getElementById('selected-patient-status-label');
+            statusLabel.textContent = "Qabul kutilmoqda";
+            statusLabel.setAttribute('data-value', "Qabul kutilmoqda");
+
+            document.getElementById('patient-input-details').value = "";
+
+            // Avatar
+            document.getElementById('patient-modal-avatar').innerHTML = `<i class="ri-user-add-line text-sm text-emerald-600"></i>`;
+
+            // Yangi bemor uchun "Chaqirish" va "O'chirish" tugmalarini yashirish
+            document.getElementById('btn-modal-call').style.display = 'none';
+            document.getElementById('btn-modal-delete').style.display = 'none';
+
+            // Modal darchasini ochish
+            const modal = document.getElementById('patient-detail-modal');
+            const innerCard = modal.querySelector('.popup-scale');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                innerCard.classList.remove('scale-95');
+                innerCard.classList.add('scale-100');
+            }, 10);
+        }
+
+        // ESKI BEMORNI TAHRIRLASH UCHUN MODALNI TANLANGAN DATA BILAN OCHISH
+        function openPatientModal(patientId) {
+            selectedPatientId = patientId;
+            const patient = originalPatients.find(p => p.id === patientId);
+            if(!patient) return;
+
+            // "Chaqirish" va "O'chirish" tugmalarini qayta ko'rsatish
+            document.getElementById('btn-modal-call').style.display = 'flex';
+            document.getElementById('btn-modal-delete').style.display = 'flex';
+
+            document.getElementById('patient-modal-title').textContent = patient.fullName;
+            document.getElementById('patient-input-name').value = patient.fullName;
+            
+            // 1. Tug'ilgan sana alohida tekshiruvlari
+            document.getElementById('patient-input-day').value = patient.birthDay || 15;
+            document.getElementById('patient-input-year').value = patient.birthYear || 1995;
+            
+            const birthMonthVal = patient.birthMonth || 1;
+            const mObj = monthsList.find(m => m.value === birthMonthVal);
+            const monthLabelName = mObj ? mObj.name : "Yanvar";
+            
+            const monthLabel = document.getElementById('selected-birth-month-label');
+            monthLabel.textContent = monthLabelName;
+            monthLabel.setAttribute('data-value', birthMonthVal);
+
+            // 2. Pasport va PINFL
+            document.getElementById('patient-input-passport-series').value = patient.passportSeries;
+            document.getElementById('patient-input-passport-number').value = patient.passportNumber;
+            document.getElementById('patient-input-pinfl').value = patient.pinfl;
+            
+            // 3. Yashash tumani (Custom Dropdown)
+            const distLabel = document.getElementById('selected-patient-district-label');
+            distLabel.textContent = patient.districtName;
+            distLabel.setAttribute('data-value', patient.districtKey);
+
+            document.getElementById('patient-input-village').value = patient.village;
+            document.getElementById('patient-input-lastvisit').value = patient.lastVisit;
+            
+            // 4. Kasallangan vaqti (Sana custom div dropdownlaridan tiklash)
+            let infDateStr = patient.infectionDate || "2026-05-01";
+            let parts = infDateStr.split('-');
+            let infYear = parseInt(parts[0]) || 2026;
+            let infMonth = parseInt(parts[1]) || 5;
+            let infDay = parseInt(parts[2]) || 1;
+
+            const infDayLabel = document.getElementById('selected-inf-day-label');
+            infDayLabel.textContent = infDay;
+            infDayLabel.setAttribute('data-value', infDay);
+
+            const infMonthObj = monthsList.find(m => m.value === infMonth);
+            const infMonthLabel = document.getElementById('selected-inf-month-label');
+            infMonthLabel.textContent = infMonthObj ? infMonthObj.name : "Yanvar";
+            infMonthLabel.setAttribute('data-value', infMonth);
+
+            const infYearLabel = document.getElementById('selected-inf-year-label');
+            infYearLabel.textContent = infYear;
+            infYearLabel.setAttribute('data-value', infYear);
+            
+            // 5. Status (Custom Dropdown)
+            const statusLabel = document.getElementById('selected-patient-status-label');
+            statusLabel.textContent = patient.status;
+            statusLabel.setAttribute('data-value', patient.status);
+
+            document.getElementById('patient-input-details').value = patient.details;
+
+            // Modal sarlavhasidagi avatar
+            const initials = patient.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+            document.getElementById('patient-modal-avatar').textContent = initials;
+
+            const modal = document.getElementById('patient-detail-modal');
+            const innerCard = modal.querySelector('.popup-scale');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                innerCard.classList.remove('scale-95');
+                innerCard.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closePatientModal() {
+            const modal = document.getElementById('patient-detail-modal');
+            const innerCard = modal.querySelector('.popup-scale');
+            if (!modal) return;
+
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            innerCard.classList.remove('scale-100');
+            innerCard.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 250);
+        }
+
+        // BEMORNI SAQLASH (Ham yangi qo'shish, ham tahrirlash shu yerdan o'tadi)
+        function actionSavePatient() {
+            const name = document.getElementById('patient-input-name').value.trim();
+            const birthDay = parseInt(document.getElementById('patient-input-day').value);
+            const birthMonth = parseInt(document.getElementById('selected-birth-month-label').getAttribute('data-value'));
+            const birthYear = parseInt(document.getElementById('patient-input-year').value);
+            
+            const passportSeries = document.getElementById('patient-input-passport-series').value.trim().toUpperCase();
+            const passportNumber = document.getElementById('patient-input-passport-number').value.trim();
+            const pinfl = document.getElementById('patient-input-pinfl').value.trim();
+            
+            const districtKey = document.getElementById('selected-patient-district-label').getAttribute('data-value');
+            const village = document.getElementById('patient-input-village').value.trim();
+            const lastVisit = document.getElementById('patient-input-lastvisit').value.trim();
+            
+            // Kasallangan vaqtni custom div dropdownlaridan yig'ish
+            const infDay = parseInt(document.getElementById('selected-inf-day-label').getAttribute('data-value'));
+            const infMonth = parseInt(document.getElementById('selected-inf-month-label').getAttribute('data-value'));
+            const infYear = parseInt(document.getElementById('selected-inf-year-label').getAttribute('data-value'));
+            const infectionDate = `${infYear}-${String(infMonth).padStart(2, '0')}-${String(infDay).padStart(2, '0')}`;
+
+            const status = document.getElementById('selected-patient-status-label').getAttribute('data-value');
+            const details = document.getElementById('patient-input-details').value.trim();
+
+            if(!name || !passportSeries || !passportNumber || !pinfl || !districtKey) {
+                showToast("Xatolik", "Iltimos, barcha majburiy ma'lumotlarni to'ldiring.", "error");
+                return;
+            }
+
+            if(pinfl.length !== 14) {
+                showToast("Tizim xatosi", "JShShIR (PINFL) 14 xonali bo'lishi shart.", "error");
+                return;
+            }
+
+            if(birthDay < 1 || birthDay > 31 || isNaN(birthDay)) {
+                showToast("Tizim xatosi", "Tug'ilgan kun noto'g'ri kiritilgan (1-31).", "error");
+                return;
+            }
+
+            const distObj = bxh_districts.find(d => d.key === districtKey);
+            const districtName = distObj ? distObj.name : districtKey;
+
+            if (selectedPatientId === null) {
+                // YANGI BEMOR YARATISH LOGIKASI
+                const newId = originalPatients.length > 0 ? Math.max(...originalPatients.map(p => p.id)) + 1 : 1;
+                
+                const newPatient = {
+                    id: newId,
+                    fullName: name,
+                    birthYear: birthYear,
+                    birthMonth: birthMonth,
+                    birthDay: birthDay,
+                    passportSeries: passportSeries,
+                    passportNumber: passportNumber,
+                    pinfl: pinfl,
+                    districtKey: districtKey,
+                    districtName: districtName,
+                    village: village || "Kiritilmagan",
+                    lastVisit: lastVisit === "Hozirgina qo'shildi" ? lastVisit : "Hozirgina qo'shildi",
+                    infectionDate: infectionDate,
+                    status: status,
+                    details: details || "Tafsilotlar kiritilmagan."
+                };
+
+                originalPatients.unshift(newPatient); // Eng birinchi qilib qo'shamiz
+                filteredPatients = [...originalPatients];
+
+                // Global Dashboard statistikalarini 1 taga oshirish
+                if (regionalStatistics[districtKey]) {
+                    regionalStatistics[districtKey].total_patients += 1;
+                    regionalStatistics.butun_buxoro.total_patients += 1;
+                    
+                    if (status === 'Qabul kutilmoqda') {
+                        regionalStatistics[districtKey].distribution.total += 1;
+                        regionalStatistics[districtKey].distribution.qabulda += 1;
+                        regionalStatistics.butun_buxoro.distribution.total += 1;
+                        regionalStatistics.butun_buxoro.distribution.qabulda += 1;
+                    } else {
+                        regionalStatistics[districtKey].distribution.total += 1;
+                        regionalStatistics[districtKey].distribution.shifoxona += 1;
+                        regionalStatistics.butun_buxoro.distribution.total += 1;
+                        regionalStatistics.butun_buxoro.distribution.shifoxona += 1;
+                    }
+                }
+
+                loadRegionSelectorsAndLists();
+                // Dashboardni qayta yangilaymiz
+                selectCustomRegion(currentRegionKey, bxh_districts.find(d => d.key === currentRegionKey).name);
+
+                closePatientModal();
+                executePatientSearch();
+                showToast("Qo'shildi", "Yangi bemor muvaffaqiyatli ro'yxatga olindi.", "success");
+
+            } else {
+                // MAVJUD BEMORNI TAHRIRLASH LOGIKASI
+                const idx = originalPatients.findIndex(p => p.id === selectedPatientId);
+                if(idx !== -1) {
+                    originalPatients[idx] = {
+                        ...originalPatients[idx],
+                        fullName: name,
+                        birthYear: birthYear,
+                        birthMonth: birthMonth,
+                        birthDay: birthDay,
+                        passportSeries: passportSeries,
+                        passportNumber: passportNumber,
+                        pinfl: pinfl,
+                        districtKey: districtKey,
+                        districtName: districtName,
+                        village: village,
+                        lastVisit: lastVisit,
+                        infectionDate: infectionDate,
+                        status: status,
+                        details: details
+                    };
+
+                    const fIdx = filteredPatients.findIndex(p => p.id === selectedPatientId);
+                    if(fIdx !== -1) {
+                        filteredPatients[fIdx] = originalPatients[idx];
+                    }
+
+                    closePatientModal();
+                    renderPatientList();
+                    showToast("Saqlandi", "Bemor ma'lumotlari yangilandi.", "success");
+                }
+            }
+        }
+
+        // BEMORNI BAZADAN O'CHIRISH
+        function actionDeletePatient() {
+            if(!selectedPatientId) return;
+
+            const name = document.getElementById('patient-input-name').value;
+            const patient = originalPatients.find(p => p.id === selectedPatientId);
+
+            if(patient) {
+                const distKey = patient.districtKey;
+                // Statistikani mos ravishda kamaytirish
+                if (regionalStatistics[distKey]) {
+                    regionalStatistics[distKey].total_patients = Math.max(0, regionalStatistics[distKey].total_patients - 1);
+                    regionalStatistics.butun_buxoro.total_patients = Math.max(0, regionalStatistics.butun_buxoro.total_patients - 1);
+                    
+                    if (patient.status === 'Qabul kutilmoqda') {
+                        regionalStatistics[distKey].distribution.total = Math.max(0, regionalStatistics[distKey].distribution.total - 1);
+                        regionalStatistics[distKey].distribution.qabulda = Math.max(0, regionalStatistics[distKey].distribution.qabulda - 1);
+                        regionalStatistics.butun_buxoro.distribution.total = Math.max(0, regionalStatistics.butun_buxoro.distribution.total - 1);
+                        regionalStatistics.butun_buxoro.distribution.qabulda = Math.max(0, regionalStatistics.butun_buxoro.distribution.qabulda - 1);
+                    } else {
+                        regionalStatistics[distKey].distribution.total = Math.max(0, regionalStatistics[distKey].distribution.total - 1);
+                        regionalStatistics[distKey].distribution.shifoxona = Math.max(0, regionalStatistics[distKey].distribution.shifoxona - 1);
+                        regionalStatistics.butun_buxoro.distribution.total = Math.max(0, regionalStatistics.butun_buxoro.distribution.total - 1);
+                        regionalStatistics.butun_buxoro.distribution.shifoxona = Math.max(0, regionalStatistics.butun_buxoro.distribution.shifoxona - 1);
+                    }
+                }
+            }
+
+            originalPatients = originalPatients.filter(p => p.id !== selectedPatientId);
+            filteredPatients = filteredPatients.filter(p => p.id !== selectedPatientId);
+
+            loadRegionSelectorsAndLists();
+            selectCustomRegion(currentRegionKey, bxh_districts.find(d => d.key === currentRegionKey).name);
+
+            closePatientModal();
+            renderPatientList();
+            showToast("O'chirildi", `${name} ma'lumotlar bazasidan olib tashlandi.`, "warning");
+        }
+
+        // BEMORNI XONAGA CHAQIRISH SIMULYATSIYASI
+        function actionCallPatient() {
+            if(!selectedPatientId) return;
+            const name = document.getElementById('patient-input-name').value;
+            
+            showToast(
+                "Navbat Chaqirildi", 
+                `${name} Dr. Sherzod Alimov qabulxonasiga chaqirildi!`, 
+                "success"
+            );
+            closePatientModal();
+        }
+
+        // Tumanlarni qidirishda matnni tozalab solishtirish (Kogon, G'ijduvonlar muammosiz ishlaydi)
+        function filterDistricts() {
+            const searchInput = cleanUzbekText(document.getElementById('district-filter-input').value);
+            const cards = document.querySelectorAll('.district-card');
+            
+            cards.forEach(card => {
+                const nameAttr = card.getAttribute('data-name');
+                const dObj = bxh_districts.find(d => d.key === nameAttr);
+                const name = dObj ? cleanUzbekText(dObj.name) : '';
+                
+                if (name.includes(searchInput)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Dynamic System Report Simulator
+        function generateReportSimulation() {
+            const stateContainer = document.getElementById('report-generation-state');
+            const loader = document.getElementById('report-loader');
+            const output = document.getElementById('report-output-card');
+
+            stateContainer.classList.remove('hidden');
+            loader.classList.remove('hidden');
+            output.classList.add('hidden');
+
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                output.classList.remove('hidden');
+                showToast("Hisobot Tayyor", "SSV monitoring tizimi hisoboti muvaffaqiyatli shakllantirildi.", "success");
+            }, 1500);
+        }
+
+        // App start triggers
+        window.onload = function() {
+            generatePatientDatabase();
+            loadRegionSelectorsAndLists();
+            initDiseaseChart();
+            
+            document.getElementById('stat-patients').setAttribute('data-target', regionalStatistics.butun_buxoro.total_patients);
+            document.getElementById('stat-new').setAttribute('data-target', regionalStatistics.butun_buxoro.new_weekly);
+            document.getElementById('stat-critical').setAttribute('data-target', regionalStatistics.butun_buxoro.critical);
+            document.getElementById('stat-appointments').setAttribute('data-target', regionalStatistics.butun_buxoro.appointments);
+            
+            triggerStatisticsCounters();
+            
+            // Dashboard Enter Search integration
+            document.getElementById('dashboard-search').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    const txt = this.value.trim();
+                    if(txt) {
+                        switchTab('kasallar');
+                        if(txt.length === 9) {
+                            document.getElementById('search-passport-series').value = txt.slice(0,2);
+                            document.getElementById('search-passport-number').value = txt.slice(2);
+                            switchSearchTab('passport');
+                        } else if(txt.length === 14) {
+                            document.getElementById('search-pinfl').value = txt;
+                            switchSearchTab('pinfl');
+                        } else {
+                            filteredPatients = originalPatients.filter(p => cleanUzbekText(p.fullName).includes(cleanUzbekText(txt)));
+                            patientsCurrentPage = 1;
+                        }
+                        renderPatientList();
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+</html>
+
+
