@@ -93,6 +93,59 @@
             max-height: 220px;
             overflow-y: auto;
         }
+
+        .patient-form-input,
+        .patient-dropdown-trigger {
+            -webkit-appearance: none;
+            appearance: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .patient-form-input {
+            font-size: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .patient-form-input {
+                font-size: 12px;
+            }
+        }
+
+        .patient-dropdown-trigger {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .patient-dropdown-trigger[aria-expanded="true"] {
+            background: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .patient-dropdown-menu {
+            overscroll-behavior: contain;
+            padding: 4px;
+        }
+
+        .patient-dropdown-option {
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .patient-dropdown-option:hover,
+        .patient-dropdown-option:focus {
+            background: #eff6ff;
+            color: #2563eb;
+            outline: none;
+        }
+
+        .patient-dropdown-option[aria-selected="true"] {
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-weight: 800;
+        }
     </style>
 </head>
 <body class="flex justify-center items-center min-h-screen py-4 md:py-8">
@@ -765,7 +818,7 @@
 
         <!-- PATIENT DETAIL EDIT/VIEW MODAL -->
         <div id="patient-detail-modal" class="fixed md:absolute inset-0 bg-slate-950/50 backdrop-blur-[3px] z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all duration-300">
-            <div class="bg-white rounded-[24px] w-full max-w-[370px] shadow-2xl overflow-hidden border border-slate-100 flex flex-col transform scale-95 popup-scale duration-300 max-h-[90%]">
+            <div class="bg-white rounded-[24px] w-full max-w-[370px] shadow-2xl overflow-hidden border border-slate-100 flex flex-col transform scale-95 popup-scale duration-300 max-h-[calc(100dvh-2rem)] md:max-h-[90%]">
                 
                 <!-- Modal Header -->
                 <div class="p-4 flex justify-between items-center border-b border-slate-100 shrink-0 bg-slate-50">
@@ -791,7 +844,7 @@
                         <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Ism Familiya</label>
                         <div class="relative">
                             <i class="ri-user-line absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" id="patient-input-name" class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-800 transition-colors bg-slate-50/50 focus:bg-white">
+                            <input type="text" id="patient-input-name" autocomplete="name" class="patient-form-input w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-800 transition-colors bg-slate-50/50 focus:bg-white">
                         </div>
                     </div>
 
@@ -800,27 +853,43 @@
                         <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Tug'ilgan Sana (Kun / Oy / Yil)</label>
                         <div class="grid grid-cols-3 gap-2 mt-1">
                             <!-- Kun -->
-                            <div class="space-y-0.5">
+                            <div class="space-y-0.5 relative">
                                 <span class="text-[8px] font-bold text-slate-400">Kun</span>
-                                <input type="number" id="patient-input-day" min="1" max="31" placeholder="Kun" class="w-full px-2.5 py-2 border border-slate-200 rounded-[8px] text-center font-bold text-slate-800 focus:outline-none focus:border-blue-500 bg-white">
+                                <div class="relative" id="dropdown-birth-day">
+                                    <div role="button" tabindex="0" onclick="toggleCustomDropdown('dropdown-birth-day-menu', event)" onkeydown="handleDropdownKeydown(event, 'dropdown-birth-day-menu')" aria-haspopup="listbox" aria-expanded="false" aria-controls="dropdown-birth-day-menu" class="patient-dropdown-trigger w-full px-2 py-2 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none">
+                                        <span id="selected-birth-day-label" data-value="1">1</span>
+                                        <i class="ri-arrow-down-s-line text-slate-400"></i>
+                                    </div>
+                                    <div id="dropdown-birth-day-menu" role="listbox" class="patient-dropdown-menu absolute hidden w-20 left-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
+                                        <!-- JS orqali kunlar to'ldiriladi -->
+                                    </div>
+                                </div>
                             </div>
                             <!-- Oy (Custom Dropdown) -->
                             <div class="space-y-0.5 relative">
                                 <span class="text-[8px] font-bold text-slate-400">Oy</span>
                                 <div class="relative" id="dropdown-birth-month">
-                                    <button type="button" onclick="toggleCustomDropdown('dropdown-birth-month-menu')" class="w-full px-2 py-2 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none focus:border-blue-500">
+                                    <div role="button" tabindex="0" onclick="toggleCustomDropdown('dropdown-birth-month-menu', event)" onkeydown="handleDropdownKeydown(event, 'dropdown-birth-month-menu')" aria-haspopup="listbox" aria-expanded="false" aria-controls="dropdown-birth-month-menu" class="patient-dropdown-trigger w-full px-2 py-2 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none">
                                         <span id="selected-birth-month-label" data-value="1">Yanvar</span>
                                         <i class="ri-arrow-down-s-line text-slate-400"></i>
-                                    </button>
-                                    <div id="dropdown-birth-month-menu" class="absolute hidden w-36 left-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
+                                    </div>
+                                    <div id="dropdown-birth-month-menu" role="listbox" class="patient-dropdown-menu absolute hidden w-36 left-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
                                         <!-- JS orqali oylar to'ldiriladi -->
                                     </div>
                                 </div>
                             </div>
                             <!-- Yil -->
-                            <div class="space-y-0.5">
+                            <div class="space-y-0.5 relative">
                                 <span class="text-[8px] font-bold text-slate-400">Yil</span>
-                                <input type="number" id="patient-input-year" min="1900" max="2026" placeholder="Yil" class="w-full px-2.5 py-2 border border-slate-200 rounded-[8px] text-center font-bold text-slate-800 focus:outline-none focus:border-blue-500 bg-white">
+                                <div class="relative" id="dropdown-birth-year">
+                                    <div role="button" tabindex="0" onclick="toggleCustomDropdown('dropdown-birth-year-menu', event)" onkeydown="handleDropdownKeydown(event, 'dropdown-birth-year-menu')" aria-haspopup="listbox" aria-expanded="false" aria-controls="dropdown-birth-year-menu" class="patient-dropdown-trigger w-full px-2 py-2 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none">
+                                        <span id="selected-birth-year-label" data-value="1995">1995</span>
+                                        <i class="ri-arrow-down-s-line text-slate-400"></i>
+                                    </div>
+                                    <div id="dropdown-birth-year-menu" role="listbox" class="patient-dropdown-menu absolute hidden w-24 right-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
+                                        <!-- JS orqali yillar to'ldiriladi -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -831,11 +900,11 @@
                         <div class="grid grid-cols-3 gap-2 mt-1">
                             <div class="col-span-1">
                                 <span class="text-[8px] font-bold text-slate-400">Seriya</span>
-                                <input type="text" id="patient-input-passport-series" maxlength="2" placeholder="AA" class="w-full px-2.5 py-2 border border-slate-200 rounded-[8px] text-center uppercase font-extrabold text-blue-600 focus:outline-none focus:border-blue-500 bg-white">
+                                <input type="text" id="patient-input-passport-series" maxlength="2" inputmode="text" autocomplete="off" autocapitalize="characters" placeholder="AA" class="patient-form-input w-full px-2.5 py-2 border border-slate-200 rounded-[8px] text-center uppercase font-extrabold text-blue-600 focus:outline-none focus:border-blue-500 bg-white">
                             </div>
                             <div class="col-span-2">
                                 <span class="text-[8px] font-bold text-slate-400">Raqam</span>
-                                <input type="number" id="patient-input-passport-number" placeholder="1234567" class="w-full px-3 py-2 border border-slate-200 rounded-[8px] font-semibold text-slate-800 focus:outline-none focus:border-blue-500 bg-white" oninput="if(this.value.length > 7) this.value = this.value.slice(0,7)">
+                                <input type="text" id="patient-input-passport-number" maxlength="7" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="1234567" class="patient-form-input w-full px-3 py-2 border border-slate-200 rounded-[8px] font-semibold text-slate-800 focus:outline-none focus:border-blue-500 bg-white">
                             </div>
                         </div>
                     </div>
@@ -848,7 +917,7 @@
                         </div>
                         <div class="relative">
                             <i class="ri-bank-card-line absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="number" id="patient-input-pinfl" placeholder="31204923180054" class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-bold text-slate-800 transition-colors bg-slate-50/50 focus:bg-white" oninput="if(this.value.length > 14) this.value = this.value.slice(0,14)">
+                            <input type="text" id="patient-input-pinfl" maxlength="14" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="31204923180054" class="patient-form-input w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-bold text-slate-800 transition-colors bg-slate-50/50 focus:bg-white">
                         </div>
                     </div>
 
@@ -857,18 +926,18 @@
                         <div class="space-y-1 relative">
                             <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Yashash Tumani</label>
                             <div class="relative" id="dropdown-patient-district">
-                                <button type="button" onclick="toggleCustomDropdown('dropdown-patient-district-menu')" class="w-full px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-[10px] text-[11px] font-semibold text-slate-700 flex justify-between items-center focus:outline-none focus:bg-white focus:border-blue-500">
+                                <div role="button" tabindex="0" onclick="toggleCustomDropdown('dropdown-patient-district-menu', event)" onkeydown="handleDropdownKeydown(event, 'dropdown-patient-district-menu')" aria-haspopup="listbox" aria-expanded="false" aria-controls="dropdown-patient-district-menu" class="patient-dropdown-trigger w-full px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-[10px] text-[11px] font-semibold text-slate-700 flex justify-between items-center focus:outline-none">
                                     <span id="selected-patient-district-label" data-value="">Tuman</span>
                                     <i class="ri-arrow-down-s-line text-slate-400"></i>
-                                </button>
-                                <div id="dropdown-patient-district-menu" class="absolute hidden w-48 left-0 mt-1 bg-white border border-slate-200 rounded-[10px] shadow-lg z-[120] custom-dropdown-list">
+                                </div>
+                                <div id="dropdown-patient-district-menu" role="listbox" class="patient-dropdown-menu absolute hidden w-48 left-0 mt-1 bg-white border border-slate-200 rounded-[10px] shadow-lg z-[120] custom-dropdown-list">
                                     <!-- JS orqali to'ldiriladi -->
                                 </div>
                             </div>
                         </div>
                         <div class="space-y-1">
                             <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Mahalla / Qishloq</label>
-                            <input type="text" id="patient-input-village" placeholder="Navbahor MFY" class="w-full px-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-800 transition-colors bg-slate-50/50 focus:bg-white">
+                            <input type="text" id="patient-input-village" autocomplete="street-address" placeholder="Navbahor MFY" class="patient-form-input w-full px-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-800 transition-colors bg-slate-50/50 focus:bg-white">
                         </div>
                     </div>
 
@@ -882,11 +951,11 @@
                             <div class="space-y-0.5 relative">
                                 <span class="text-[8px] font-bold text-slate-400">Kun</span>
                                 <div class="relative" id="dropdown-inf-day">
-                                    <button type="button" onclick="toggleCustomDropdown('dropdown-inf-day-menu')" class="w-full px-2 py-2.5 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none focus:border-blue-500">
+                                    <div role="button" tabindex="0" onclick="toggleCustomDropdown('dropdown-inf-day-menu', event)" onkeydown="handleDropdownKeydown(event, 'dropdown-inf-day-menu')" aria-haspopup="listbox" aria-expanded="false" aria-controls="dropdown-inf-day-menu" class="patient-dropdown-trigger w-full px-2 py-2.5 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none">
                                         <span id="selected-inf-day-label" data-value="1">1</span>
                                         <i class="ri-arrow-down-s-line text-slate-400"></i>
-                                    </button>
-                                    <div id="dropdown-inf-day-menu" class="absolute hidden w-20 left-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
+                                    </div>
+                                    <div id="dropdown-inf-day-menu" role="listbox" class="patient-dropdown-menu absolute hidden w-20 left-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
                                         <!-- JS orqali kunlar (1-31) to'ldiriladi -->
                                     </div>
                                 </div>
@@ -896,11 +965,11 @@
                             <div class="space-y-0.5 relative">
                                 <span class="text-[8px] font-bold text-slate-400">Oy</span>
                                 <div class="relative" id="dropdown-inf-month">
-                                    <button type="button" onclick="toggleCustomDropdown('dropdown-inf-month-menu')" class="w-full px-2 py-2.5 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none focus:border-blue-500">
+                                    <div role="button" tabindex="0" onclick="toggleCustomDropdown('dropdown-inf-month-menu', event)" onkeydown="handleDropdownKeydown(event, 'dropdown-inf-month-menu')" aria-haspopup="listbox" aria-expanded="false" aria-controls="dropdown-inf-month-menu" class="patient-dropdown-trigger w-full px-2 py-2.5 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none">
                                         <span id="selected-inf-month-label" data-value="1">Yanvar</span>
                                         <i class="ri-arrow-down-s-line text-slate-400"></i>
-                                    </button>
-                                    <div id="dropdown-inf-month-menu" class="absolute hidden w-32 left-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
+                                    </div>
+                                    <div id="dropdown-inf-month-menu" role="listbox" class="patient-dropdown-menu absolute hidden w-32 left-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
                                         <!-- JS orqali oylar to'ldiriladi -->
                                     </div>
                                 </div>
@@ -910,11 +979,11 @@
                             <div class="space-y-0.5 relative">
                                 <span class="text-[8px] font-bold text-slate-400">Yil</span>
                                 <div class="relative" id="dropdown-inf-year">
-                                    <button type="button" onclick="toggleCustomDropdown('dropdown-inf-year-menu')" class="w-full px-2 py-2.5 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none focus:border-blue-500">
+                                    <div role="button" tabindex="0" onclick="toggleCustomDropdown('dropdown-inf-year-menu', event)" onkeydown="handleDropdownKeydown(event, 'dropdown-inf-year-menu')" aria-haspopup="listbox" aria-expanded="false" aria-controls="dropdown-inf-year-menu" class="patient-dropdown-trigger w-full px-2 py-2.5 bg-white border border-slate-200 rounded-[8px] text-[10px] font-bold text-slate-700 flex justify-between items-center focus:outline-none">
                                         <span id="selected-inf-year-label" data-value="2026">2026</span>
                                         <i class="ri-arrow-down-s-line text-slate-400"></i>
-                                    </button>
-                                    <div id="dropdown-inf-year-menu" class="absolute hidden w-24 left-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
+                                    </div>
+                                    <div id="dropdown-inf-year-menu" role="listbox" class="patient-dropdown-menu absolute hidden w-24 right-0 mt-1 bg-white border border-slate-200 rounded-[8px] shadow-lg z-[120] custom-dropdown-list">
                                         <!-- JS orqali yillar (2020-2026) to'ldiriladi -->
                                     </div>
                                 </div>
@@ -928,19 +997,18 @@
                             <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Oxirgi Kelgan Vaqti</label>
                             <div class="relative">
                                 <i class="ri-time-line absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                <input type="text" id="patient-input-lastvisit" class="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-800 bg-slate-100 cursor-not-allowed" readonly>
+                                <input type="text" id="patient-input-lastvisit" class="patient-form-input w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-800 bg-slate-100 cursor-not-allowed" readonly>
                             </div>
                         </div>
                         <div class="space-y-1 relative">
                             <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Hozirgi Holat</label>
                             <div class="relative" id="dropdown-patient-status">
-                                <button type="button" onclick="toggleCustomDropdown('dropdown-patient-status-menu')" class="w-full px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-[10px] text-[11px] font-bold text-slate-700 flex justify-between items-center focus:outline-none focus:bg-white focus:border-blue-500">
+                                <div role="button" tabindex="0" onclick="toggleCustomDropdown('dropdown-patient-status-menu', event)" onkeydown="handleDropdownKeydown(event, 'dropdown-patient-status-menu')" aria-haspopup="listbox" aria-expanded="false" aria-controls="dropdown-patient-status-menu" class="patient-dropdown-trigger w-full px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-[10px] text-[11px] font-bold text-slate-700 flex justify-between items-center focus:outline-none">
                                     <span id="selected-patient-status-label" data-value="Qabul kutilmoqda">Qabul kutilmoqda</span>
                                     <i class="ri-arrow-down-s-line text-slate-400"></i>
-                                </button>
-                                <div id="dropdown-patient-status-menu" class="absolute hidden w-full left-0 mt-1 bg-white border border-slate-200 rounded-[10px] shadow-lg z-[120] py-1">
-                                    <button onclick="selectPatientStatus('Qabul kutilmoqda')" class="w-full text-left px-3 py-2 hover:bg-amber-50 hover:text-amber-700 font-bold transition-colors">Qabul kutilmoqda</button>
-                                    <button onclick="selectPatientStatus('Qabul qilingan')" class="w-full text-left px-3 py-2 hover:bg-emerald-50 hover:text-emerald-700 font-bold transition-colors">Qabul qilingan</button>
+                                </div>
+                                <div id="dropdown-patient-status-menu" role="listbox" class="patient-dropdown-menu absolute hidden w-full left-0 mt-1 bg-white border border-slate-200 rounded-[10px] shadow-lg z-[120] custom-dropdown-list">
+                                    <!-- JS orqali holatlar to'ldiriladi -->
                                 </div>
                             </div>
                         </div>
@@ -949,7 +1017,7 @@
                     <!-- Tashxis / Batafsil ma'lumot -->
                     <div class="space-y-1">
                         <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Diagnoz va To'liq Tafsilot</label>
-                        <textarea id="patient-input-details" rows="3" class="w-full px-3 py-2 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-700 leading-relaxed bg-slate-50/30 focus:bg-white transition-colors" placeholder="Bemor holatining tahliliy sharhi..."></textarea>
+                        <textarea id="patient-input-details" rows="3" class="patient-form-input w-full px-3 py-2 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-700 leading-relaxed bg-slate-50/30 focus:bg-white transition-colors" placeholder="Bemor holatining tahliliy sharhi..."></textarea>
                     </div>
                 </div>
 
@@ -1069,21 +1137,134 @@
                 .trim();
         }
 
-        // Custom Dropdown universal triggers
-        function toggleCustomDropdown(menuId) {
+        const CURRENT_YEAR = new Date().getFullYear();
+        const patientStatuses = ["Qabul kutilmoqda", "Qabul qilingan"];
+
+        function getDropdownMenus() {
+            return document.querySelectorAll('.custom-dropdown-list, [id^="dropdown-sort-menu"], [id^="dropdown-patient-status-menu"]');
+        }
+
+        function setDropdownExpanded(menuId, isExpanded) {
+            const trigger = document.querySelector(`[aria-controls="${menuId}"]`);
+            if (trigger) trigger.setAttribute('aria-expanded', String(isExpanded));
+        }
+
+        function closeDropdownById(menuId) {
             const dropdown = document.getElementById(menuId);
-            const isHidden = dropdown.classList.contains('hidden');
-            
-            // Avval barcha faol dropdownlarni yopamiz
-            document.querySelectorAll('.custom-dropdown-list, [id^="dropdown-sort-menu"], [id^="dropdown-patient-status-menu"]').forEach(el => {
-                if (el.id !== menuId) el.classList.add('hidden');
+            if (!dropdown) return;
+            dropdown.classList.add('hidden');
+            setDropdownExpanded(menuId, false);
+        }
+
+        function closeCustomDropdowns(exceptMenuId = null) {
+            getDropdownMenus().forEach(el => {
+                if (el.id !== exceptMenuId) {
+                    el.classList.add('hidden');
+                    setDropdownExpanded(el.id, false);
+                }
             });
+        }
+
+        // Custom Dropdown universal triggers
+        function toggleCustomDropdown(menuId, event) {
+            if (event) event.stopPropagation();
+            const dropdown = document.getElementById(menuId);
+            if (!dropdown) return;
+
+            const isHidden = dropdown.classList.contains('hidden');
+            closeCustomDropdowns(menuId);
 
             if (isHidden) {
                 dropdown.classList.remove('hidden');
+                setDropdownExpanded(menuId, true);
             } else {
-                dropdown.classList.add('hidden');
+                closeDropdownById(menuId);
             }
+        }
+
+        function handleDropdownKeydown(event, menuId) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleCustomDropdown(menuId, event);
+            }
+
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeDropdownById(menuId);
+            }
+        }
+
+        function setDropdownValue(labelId, value, label) {
+            const labelEl = document.getElementById(labelId);
+            if (!labelEl) return;
+            labelEl.textContent = label;
+            labelEl.setAttribute('data-value', String(value));
+            const menuId = labelId.replace('selected-', 'dropdown-').replace('-label', '-menu');
+            const menu = document.getElementById(menuId);
+            if (!menu) return;
+            menu.querySelectorAll('[role="option"]').forEach(option => {
+                option.setAttribute('aria-selected', String(option.dataset.value === String(value)));
+            });
+        }
+
+        function getDropdownValue(labelId, fallback = '') {
+            const labelEl = document.getElementById(labelId);
+            return labelEl ? labelEl.getAttribute('data-value') || fallback : fallback;
+        }
+
+        function createDropdownOption({ value, label, onSelect, selected = false }) {
+            const option = document.createElement('div');
+            option.setAttribute('role', 'option');
+            option.setAttribute('tabindex', '0');
+            option.setAttribute('aria-selected', String(selected));
+            option.dataset.value = String(value);
+            option.className = "patient-dropdown-option w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 transition-colors";
+            option.textContent = label;
+            const chooseOption = (event) => {
+                event.stopPropagation();
+                onSelect();
+            };
+            option.addEventListener('click', chooseOption);
+            option.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    chooseOption(event);
+                }
+            });
+            return option;
+        }
+
+        function buildDropdownOptions(menu, options, onSelect, selectedValue = '') {
+            if (!menu) return;
+            menu.innerHTML = '';
+            options.forEach(option => {
+                menu.appendChild(createDropdownOption({
+                    value: option.value,
+                    label: option.label,
+                    selected: String(option.value) === String(selectedValue),
+                    onSelect: () => onSelect(option.value, option.label)
+                }));
+            });
+        }
+
+        function initPatientFormInputs() {
+            const passportSeries = document.getElementById('patient-input-passport-series');
+            const passportNumber = document.getElementById('patient-input-passport-number');
+            const pinfl = document.getElementById('patient-input-pinfl');
+            if (passportSeries) {
+                passportSeries.addEventListener('input', () => {
+                    passportSeries.value = passportSeries.value.replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase();
+                });
+            }
+            [
+                { input: passportNumber, length: 7 },
+                { input: pinfl, length: 14 }
+            ].forEach(({ input, length }) => {
+                if (!input) return;
+                input.addEventListener('input', () => {
+                    input.value = input.value.replace(/\D/g, '').slice(0, length);
+                });
+            });
         }
 
         // Bemorlar simulyatsiya ma'lumotlarini yaratish generatori
@@ -1199,10 +1380,7 @@
             regionCustomDropdown.classList.add('hidden');
             if (reportDateOptions) reportDateOptions.classList.add('hidden');
             if (reportRegionOptions) reportRegionOptions.classList.add('hidden');
-            
-            document.querySelectorAll('.custom-dropdown-list, [id^="dropdown-sort-menu"], [id^="dropdown-patient-status-menu"]').forEach(el => {
-                el.classList.add('hidden');
-            });
+            closeCustomDropdowns();
         }
 
         // Dropdown toggle event listeners
@@ -1258,7 +1436,7 @@
 
         function selectSortOrder(value, label) {
             document.getElementById('selected-sort-label').textContent = label;
-            document.getElementById('dropdown-sort-menu').classList.add('hidden');
+            closeDropdownById('dropdown-sort-menu');
         }
 
         document.addEventListener('click', () => {
@@ -1276,51 +1454,49 @@
             const label = document.getElementById('selected-filter-district-label');
             label.textContent = name;
             label.setAttribute('data-value', key);
-            document.getElementById('dropdown-filter-district-menu').classList.add('hidden');
+            closeDropdownById('dropdown-filter-district-menu');
             // Tanlanganda avtomatik qidirish
             executePatientSearch();
         }
 
         function selectPatientDistrict(key, name) {
-            const label = document.getElementById('selected-patient-district-label');
-            label.textContent = name;
-            label.setAttribute('data-value', key);
-            document.getElementById('dropdown-patient-district-menu').classList.add('hidden');
+            setDropdownValue('selected-patient-district-label', key, name);
+            closeDropdownById('dropdown-patient-district-menu');
+        }
+
+        function selectBirthDay(day) {
+            setDropdownValue('selected-birth-day-label', day, day);
+            closeDropdownById('dropdown-birth-day-menu');
         }
 
         function selectBirthMonth(value, name) {
-            const label = document.getElementById('selected-birth-month-label');
-            label.textContent = name;
-            label.setAttribute('data-value', value);
-            document.getElementById('dropdown-birth-month-menu').classList.add('hidden');
+            setDropdownValue('selected-birth-month-label', value, name);
+            closeDropdownById('dropdown-birth-month-menu');
+        }
+
+        function selectBirthYear(year) {
+            setDropdownValue('selected-birth-year-label', year, year);
+            closeDropdownById('dropdown-birth-year-menu');
         }
 
         function selectInfectionDay(day) {
-            const label = document.getElementById('selected-inf-day-label');
-            label.textContent = day;
-            label.setAttribute('data-value', day);
-            document.getElementById('dropdown-inf-day-menu').classList.add('hidden');
+            setDropdownValue('selected-inf-day-label', day, day);
+            closeDropdownById('dropdown-inf-day-menu');
         }
 
         function selectInfectionMonth(value, name) {
-            const label = document.getElementById('selected-inf-month-label');
-            label.textContent = name;
-            label.setAttribute('data-value', value);
-            document.getElementById('dropdown-inf-month-menu').classList.add('hidden');
+            setDropdownValue('selected-inf-month-label', value, name);
+            closeDropdownById('dropdown-inf-month-menu');
         }
 
         function selectInfectionYear(year) {
-            const label = document.getElementById('selected-inf-year-label');
-            label.textContent = year;
-            label.setAttribute('data-value', year);
-            document.getElementById('dropdown-inf-year-menu').classList.add('hidden');
+            setDropdownValue('selected-inf-year-label', year, year);
+            closeDropdownById('dropdown-inf-year-menu');
         }
 
         function selectPatientStatus(status) {
-            const label = document.getElementById('selected-patient-status-label');
-            label.textContent = status;
-            label.setAttribute('data-value', status);
-            document.getElementById('dropdown-patient-status-menu').classList.add('hidden');
+            setDropdownValue('selected-patient-status-label', status, status);
+            closeDropdownById('dropdown-patient-status-menu');
         }
 
         // Tuman kartasidan bemorlarni filtrlab ochish funksiyasi
@@ -1339,11 +1515,14 @@
             const filterDistrictMenu = document.getElementById('dropdown-filter-district-menu');
             const patientDistrictMenu = document.getElementById('dropdown-patient-district-menu');
             const reportRegionOptionsContainer = document.getElementById('report-region-options');
+            const birthDayMenu = document.getElementById('dropdown-birth-day-menu');
             const birthMonthMenu = document.getElementById('dropdown-birth-month-menu');
+            const birthYearMenu = document.getElementById('dropdown-birth-year-menu');
             
             const infDayMenu = document.getElementById('dropdown-inf-day-menu');
             const infMonthMenu = document.getElementById('dropdown-inf-month-menu');
             const infYearMenu = document.getElementById('dropdown-inf-year-menu');
+            const patientStatusMenu = document.getElementById('dropdown-patient-status-menu');
 
             dropdownContainer.innerHTML = '';
             districtListContainer.innerHTML = '';
@@ -1359,49 +1538,32 @@
             allBtn.textContent = 'Barcha hududlar';
             filterDistrictMenu.appendChild(allBtn);
 
-            // Boshlang'ich tug'ilgan oylar dropdown yuklash
-            birthMonthMenu.innerHTML = '';
-            monthsList.forEach(m => {
-                const mBtn = document.createElement('button');
-                mBtn.type = "button";
-                mBtn.className = "w-full text-left px-3 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 transition-colors";
-                mBtn.onclick = () => selectBirthMonth(m.value, m.name);
-                mBtn.textContent = m.name;
-                birthMonthMenu.appendChild(mBtn);
+            const dayOptions = Array.from({ length: 31 }, (_, idx) => {
+                const value = idx + 1;
+                return { value, label: String(value) };
+            });
+            const monthOptions = monthsList.map(m => ({ value: m.value, label: m.name }));
+            const birthYearOptions = Array.from({ length: CURRENT_YEAR - 1900 + 1 }, (_, idx) => {
+                const value = CURRENT_YEAR - idx;
+                return { value, label: String(value) };
+            });
+            const infectionYearOptions = Array.from({ length: CURRENT_YEAR - 2020 + 1 }, (_, idx) => {
+                const value = CURRENT_YEAR - idx;
+                return { value, label: String(value) };
             });
 
-            // Kasallangan kunlar custom dropdown yuklash (1 dan 31 gacha)
-            infDayMenu.innerHTML = '';
-            for (let d = 1; d <= 31; d++) {
-                const dBtn = document.createElement('button');
-                dBtn.type = "button";
-                dBtn.className = "w-full text-left px-3 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 transition-colors";
-                dBtn.onclick = () => selectInfectionDay(d);
-                dBtn.textContent = d;
-                infDayMenu.appendChild(dBtn);
-            }
-
-            // Kasallangan oylar custom dropdown yuklash
-            infMonthMenu.innerHTML = '';
-            monthsList.forEach(m => {
-                const mBtn = document.createElement('button');
-                mBtn.type = "button";
-                mBtn.className = "w-full text-left px-3 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 transition-colors";
-                mBtn.onclick = () => selectInfectionMonth(m.value, m.name);
-                mBtn.textContent = m.name;
-                infMonthMenu.appendChild(mBtn);
-            });
-
-            // Kasallangan yillar custom dropdown yuklash (2020 dan 2026 gacha)
-            infYearMenu.innerHTML = '';
-            for (let y = 2020; y <= 2026; y++) {
-                const yBtn = document.createElement('button');
-                yBtn.type = "button";
-                yBtn.className = "w-full text-left px-3 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 transition-colors";
-                yBtn.onclick = () => selectInfectionYear(y);
-                yBtn.textContent = y;
-                infYearMenu.appendChild(yBtn);
-            }
+            buildDropdownOptions(birthDayMenu, dayOptions, selectBirthDay, getDropdownValue('selected-birth-day-label', '1'));
+            buildDropdownOptions(birthMonthMenu, monthOptions, selectBirthMonth, getDropdownValue('selected-birth-month-label', '1'));
+            buildDropdownOptions(birthYearMenu, birthYearOptions, selectBirthYear, getDropdownValue('selected-birth-year-label', '1995'));
+            buildDropdownOptions(infDayMenu, dayOptions, selectInfectionDay, getDropdownValue('selected-inf-day-label', '1'));
+            buildDropdownOptions(infMonthMenu, monthOptions, selectInfectionMonth, getDropdownValue('selected-inf-month-label', '1'));
+            buildDropdownOptions(infYearMenu, infectionYearOptions, selectInfectionYear, getDropdownValue('selected-inf-year-label', String(CURRENT_YEAR)));
+            buildDropdownOptions(
+                patientStatusMenu,
+                patientStatuses.map(status => ({ value: status, label: status })),
+                selectPatientStatus,
+                getDropdownValue('selected-patient-status-label', patientStatuses[0])
+            );
 
             bxh_districts.forEach(d => {
                 // 1. Dashboard Custom Switcher Dropdown
@@ -1429,12 +1591,12 @@
 
                 // 3. Patient Modal District editor selector Custom dropdown
                 if (d.key !== 'butun_buxoro') {
-                    const pBtn = document.createElement('button');
-                    pBtn.type = "button";
-                    pBtn.className = "w-full text-left px-3 py-2 text-xs font-semibold hover:bg-blue-50 hover:text-blue-600 transition-colors";
-                    pBtn.onclick = () => selectPatientDistrict(d.key, d.name);
-                    pBtn.textContent = d.name;
-                    patientDistrictMenu.appendChild(pBtn);
+                    patientDistrictMenu.appendChild(createDropdownOption({
+                        value: d.key,
+                        label: d.name,
+                        selected: getDropdownValue('selected-patient-district-label') === d.key,
+                        onSelect: () => selectPatientDistrict(d.key, d.name)
+                    }));
                 }
 
                 // 4. Report Section Dropdown Items
@@ -1959,49 +2121,23 @@
         // YANGI BEMOR QO'SHISH REJIMINI FAOLLASHTIRISH (Modalni tozalash)
         function openNewPatientModal() {
             selectedPatientId = null;
+            closeAllDropdowns();
 
             document.getElementById('patient-modal-title').textContent = "Yangi Bemor Qo'shish";
             document.getElementById('patient-input-name').value = "";
-            document.getElementById('patient-input-day').value = "1";
-            
-            // Tug'ilgan oyi custom dropdowni
-            const monthLabel = document.getElementById('selected-birth-month-label');
-            monthLabel.textContent = "Yanvar";
-            monthLabel.setAttribute('data-value', "1");
-
-            document.getElementById('patient-input-year').value = "1995";
+            selectBirthDay(1);
+            selectBirthMonth(1, "Yanvar");
+            selectBirthYear(1995);
             document.getElementById('patient-input-passport-series').value = "";
             document.getElementById('patient-input-passport-number').value = "";
             document.getElementById('patient-input-pinfl').value = "";
-            
-            // Yashash tumani custom dropdowni (default: Buxoro shahar)
-            const distLabel = document.getElementById('selected-patient-district-label');
-            distLabel.textContent = "Buxoro shahar";
-            distLabel.setAttribute('data-value', "buxoro_shahar");
-
+            selectPatientDistrict("buxoro_shahar", "Buxoro shahar");
             document.getElementById('patient-input-village').value = "";
             document.getElementById('patient-input-lastvisit').value = "Hozirgina qo'shildi";
-            
-            // Kasallangan kun custom dropdowni
-            const infDayLabel = document.getElementById('selected-inf-day-label');
-            infDayLabel.textContent = "1";
-            infDayLabel.setAttribute('data-value', "1");
-
-            // Kasallangan oy custom dropdowni
-            const infMonthLabel = document.getElementById('selected-inf-month-label');
-            infMonthLabel.textContent = "Yanvar";
-            infMonthLabel.setAttribute('data-value', "1");
-
-            // Kasallangan yil custom dropdowni
-            const infYearLabel = document.getElementById('selected-inf-year-label');
-            infYearLabel.textContent = "2026";
-            infYearLabel.setAttribute('data-value', "2026");
-
-            // Status custom dropdowni
-            const statusLabel = document.getElementById('selected-patient-status-label');
-            statusLabel.textContent = "Qabul kutilmoqda";
-            statusLabel.setAttribute('data-value', "Qabul kutilmoqda");
-
+            selectInfectionDay(1);
+            selectInfectionMonth(1, "Yanvar");
+            selectInfectionYear(CURRENT_YEAR);
+            selectPatientStatus("Qabul kutilmoqda");
             document.getElementById('patient-input-details').value = "";
 
             // Avatar
@@ -2029,6 +2165,7 @@
             selectedPatientId = patientId;
             const patient = originalPatients.find(p => p.id === patientId);
             if(!patient) return;
+            closeAllDropdowns();
 
             // "Chaqirish" va "O'chirish" tugmalarini qayta ko'rsatish
             document.getElementById('btn-modal-call').style.display = 'flex';
@@ -2038,16 +2175,14 @@
             document.getElementById('patient-input-name').value = patient.fullName;
             
             // 1. Tug'ilgan sana alohida tekshiruvlari
-            document.getElementById('patient-input-day').value = patient.birthDay || 15;
-            document.getElementById('patient-input-year').value = patient.birthYear || 1995;
+            selectBirthDay(patient.birthDay || 15);
+            selectBirthYear(patient.birthYear || 1995);
             
             const birthMonthVal = patient.birthMonth || 1;
             const mObj = monthsList.find(m => m.value === birthMonthVal);
             const monthLabelName = mObj ? mObj.name : "Yanvar";
             
-            const monthLabel = document.getElementById('selected-birth-month-label');
-            monthLabel.textContent = monthLabelName;
-            monthLabel.setAttribute('data-value', birthMonthVal);
+            selectBirthMonth(birthMonthVal, monthLabelName);
 
             // 2. Pasport va PINFL
             document.getElementById('patient-input-passport-series').value = patient.passportSeries;
@@ -2055,9 +2190,7 @@
             document.getElementById('patient-input-pinfl').value = patient.pinfl;
             
             // 3. Yashash tumani (Custom Dropdown)
-            const distLabel = document.getElementById('selected-patient-district-label');
-            distLabel.textContent = patient.districtName;
-            distLabel.setAttribute('data-value', patient.districtKey);
+            selectPatientDistrict(patient.districtKey, patient.districtName);
 
             document.getElementById('patient-input-village').value = patient.village;
             document.getElementById('patient-input-lastvisit').value = patient.lastVisit;
@@ -2069,23 +2202,15 @@
             let infMonth = parseInt(parts[1]) || 5;
             let infDay = parseInt(parts[2]) || 1;
 
-            const infDayLabel = document.getElementById('selected-inf-day-label');
-            infDayLabel.textContent = infDay;
-            infDayLabel.setAttribute('data-value', infDay);
+            selectInfectionDay(infDay);
 
             const infMonthObj = monthsList.find(m => m.value === infMonth);
-            const infMonthLabel = document.getElementById('selected-inf-month-label');
-            infMonthLabel.textContent = infMonthObj ? infMonthObj.name : "Yanvar";
-            infMonthLabel.setAttribute('data-value', infMonth);
+            selectInfectionMonth(infMonth, infMonthObj ? infMonthObj.name : "Yanvar");
 
-            const infYearLabel = document.getElementById('selected-inf-year-label');
-            infYearLabel.textContent = infYear;
-            infYearLabel.setAttribute('data-value', infYear);
+            selectInfectionYear(infYear);
             
             // 5. Status (Custom Dropdown)
-            const statusLabel = document.getElementById('selected-patient-status-label');
-            statusLabel.textContent = patient.status;
-            statusLabel.setAttribute('data-value', patient.status);
+            selectPatientStatus(patient.status);
 
             document.getElementById('patient-input-details').value = patient.details;
 
@@ -2109,6 +2234,7 @@
             const modal = document.getElementById('patient-detail-modal');
             const innerCard = modal.querySelector('.popup-scale');
             if (!modal) return;
+            closeAllDropdowns();
 
             modal.classList.remove('opacity-100');
             modal.classList.add('opacity-0');
@@ -2123,25 +2249,25 @@
         // BEMORNI SAQLASH (Ham yangi qo'shish, ham tahrirlash shu yerdan o'tadi)
         function actionSavePatient() {
             const name = document.getElementById('patient-input-name').value.trim();
-            const birthDay = parseInt(document.getElementById('patient-input-day').value);
-            const birthMonth = parseInt(document.getElementById('selected-birth-month-label').getAttribute('data-value'));
-            const birthYear = parseInt(document.getElementById('patient-input-year').value);
+            const birthDay = parseInt(getDropdownValue('selected-birth-day-label'));
+            const birthMonth = parseInt(getDropdownValue('selected-birth-month-label'));
+            const birthYear = parseInt(getDropdownValue('selected-birth-year-label'));
             
             const passportSeries = document.getElementById('patient-input-passport-series').value.trim().toUpperCase();
             const passportNumber = document.getElementById('patient-input-passport-number').value.trim();
             const pinfl = document.getElementById('patient-input-pinfl').value.trim();
             
-            const districtKey = document.getElementById('selected-patient-district-label').getAttribute('data-value');
+            const districtKey = getDropdownValue('selected-patient-district-label');
             const village = document.getElementById('patient-input-village').value.trim();
             const lastVisit = document.getElementById('patient-input-lastvisit').value.trim();
             
             // Kasallangan vaqtni custom div dropdownlaridan yig'ish
-            const infDay = parseInt(document.getElementById('selected-inf-day-label').getAttribute('data-value'));
-            const infMonth = parseInt(document.getElementById('selected-inf-month-label').getAttribute('data-value'));
-            const infYear = parseInt(document.getElementById('selected-inf-year-label').getAttribute('data-value'));
+            const infDay = parseInt(getDropdownValue('selected-inf-day-label'));
+            const infMonth = parseInt(getDropdownValue('selected-inf-month-label'));
+            const infYear = parseInt(getDropdownValue('selected-inf-year-label'));
             const infectionDate = `${infYear}-${String(infMonth).padStart(2, '0')}-${String(infDay).padStart(2, '0')}`;
 
-            const status = document.getElementById('selected-patient-status-label').getAttribute('data-value');
+            const status = getDropdownValue('selected-patient-status-label');
             const details = document.getElementById('patient-input-details').value.trim();
 
             if(!name || !passportSeries || !passportNumber || !pinfl || !districtKey) {
@@ -2149,13 +2275,49 @@
                 return;
             }
 
-            if(pinfl.length !== 14) {
+            if(passportSeries.length !== 2 || !/^[A-Z]{2}$/.test(passportSeries)) {
+                showToast("Tizim xatosi", "Pasport seriyasi 2 ta lotin harfidan iborat bo'lishi shart.", "error");
+                return;
+            }
+
+            if(passportNumber.length !== 7 || !/^\d{7}$/.test(passportNumber)) {
+                showToast("Tizim xatosi", "Pasport raqami 7 xonali son bo'lishi shart.", "error");
+                return;
+            }
+
+            if(pinfl.length !== 14 || !/^\d{14}$/.test(pinfl)) {
                 showToast("Tizim xatosi", "JShShIR (PINFL) 14 xonali bo'lishi shart.", "error");
                 return;
             }
 
             if(birthDay < 1 || birthDay > 31 || isNaN(birthDay)) {
                 showToast("Tizim xatosi", "Tug'ilgan kun noto'g'ri kiritilgan (1-31).", "error");
+                return;
+            }
+
+            if(isNaN(birthYear) || birthYear < 1900 || birthYear > CURRENT_YEAR) {
+                showToast("Tizim xatosi", "Tug'ilgan yil noto'g'ri tanlangan.", "error");
+                return;
+            }
+
+            const birthDateCheck = new Date(birthYear, birthMonth - 1, birthDay);
+            const infectionDateCheck = new Date(infYear, infMonth - 1, infDay);
+
+            if(
+                birthDateCheck.getFullYear() !== birthYear ||
+                birthDateCheck.getMonth() !== birthMonth - 1 ||
+                birthDateCheck.getDate() !== birthDay
+            ) {
+                showToast("Tizim xatosi", "Tug'ilgan sana noto'g'ri tanlangan.", "error");
+                return;
+            }
+
+            if(
+                infectionDateCheck.getFullYear() !== infYear ||
+                infectionDateCheck.getMonth() !== infMonth - 1 ||
+                infectionDateCheck.getDate() !== infDay
+            ) {
+                showToast("Tizim xatosi", "Kasallangan sana noto'g'ri tanlangan.", "error");
                 return;
             }
 
@@ -2338,6 +2500,7 @@
         window.onload = function() {
             generatePatientDatabase();
             loadRegionSelectorsAndLists();
+            initPatientFormInputs();
             initDiseaseChart();
             
             document.getElementById('stat-patients').setAttribute('data-target', regionalStatistics.butun_buxoro.total_patients);
