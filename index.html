@@ -102,14 +102,14 @@
             touch-action: manipulation;
         }
 
-        .patient-form-input {
-            font-size: 16px;
+        .patient-form-input,
+        .patient-dropdown-trigger {
+            font-size: 12px !important;
+            line-height: 1.35;
         }
 
-        @media (min-width: 768px) {
-            .patient-form-input {
-                font-size: 12px;
-            }
+        .patient-form-input::placeholder {
+            font-size: 12px;
         }
 
         .patient-dropdown-trigger {
@@ -230,7 +230,7 @@
                             <div class="space-y-1">
                                 <label class="text-[9px] font-bold text-slate-400 uppercase">Saralash tartibi</label>
                                 <div class="relative" id="dropdown-sort">
-                                    <button type="button" onclick="toggleCustomDropdown('dropdown-sort-menu')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-[10px] text-xs font-semibold text-slate-700 flex justify-between items-center focus:outline-none">
+                                    <button type="button" onclick="toggleCustomDropdown('dropdown-sort-menu', event)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-[10px] text-xs font-semibold text-slate-700 flex justify-between items-center focus:outline-none">
                                         <span id="selected-sort-label">Yuqori holatlar</span>
                                         <i class="ri-arrow-down-s-line text-slate-400"></i>
                                     </button>
@@ -526,7 +526,7 @@
                     <div class="space-y-1.5 relative">
                         <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Tuman Bo'yicha Filtr</label>
                         <div class="relative" id="dropdown-filter-district">
-                            <button type="button" onclick="toggleCustomDropdown('dropdown-filter-district-menu')" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-[10px] text-xs font-semibold text-slate-700 flex justify-between items-center focus:outline-none focus:bg-white focus:border-blue-500 transition-colors">
+                            <button type="button" onclick="toggleCustomDropdown('dropdown-filter-district-menu', event)" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-[10px] text-xs font-semibold text-slate-700 flex justify-between items-center focus:outline-none focus:bg-white focus:border-blue-500 transition-colors">
                                 <span id="selected-filter-district-label" data-value="all">Barcha hududlar</span>
                                 <i class="ri-arrow-down-s-line text-slate-400 transition-transform"></i>
                             </button>
@@ -935,9 +935,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="space-y-1">
+                        <div class="space-y-1 relative">
                             <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Mahalla / Qishloq</label>
-                            <input type="text" id="patient-input-village" autocomplete="street-address" placeholder="Navbahor MFY" class="patient-form-input w-full px-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-800 transition-colors bg-slate-50/50 focus:bg-white">
+                            <input type="text" id="patient-input-village" autocomplete="off" placeholder="Mahallani izlang..." onfocus="showVillageOptions(event)" onclick="showVillageOptions(event)" oninput="handleVillageSearch(event)" class="patient-form-input w-full px-3 py-2.5 border border-slate-200 rounded-[10px] focus:outline-none focus:border-blue-500 font-semibold text-slate-800 transition-colors bg-slate-50/50 focus:bg-white">
+                            <div id="dropdown-patient-village-menu" role="listbox" class="patient-dropdown-menu absolute hidden w-full left-0 mt-1 bg-white border border-slate-200 rounded-[10px] shadow-lg z-[130] custom-dropdown-list">
+                                <!-- JS orqali tanlangan tumanga mos qishloqlar chiqadi -->
+                            </div>
                         </div>
                     </div>
 
@@ -1083,6 +1086,23 @@
             { value: 11, name: "Noyabr" },
             { value: 12, name: "Dekabr" }
         ];
+
+        const bxh_villages_by_district = {
+            buxoro_shahar: ["Arabon", "B.Naqshband", "Bog'idasht", "Fayzobod", "Istiqlol", "Jo'ybor", "Ko'kaldosh", "Mohi Xossa", "Namozgoh", "S.Ayniy", "Shergiron", "Toshmachit"],
+            buxoro_t: ["Bog'ikalon", "Gala Osiyo", "Gulshanobod", "Ko'chko'mar", "Podshoyi", "Raboti Qalmoq", "Sitorai Mohi Xossa", "Sohibkor", "Talli Safed", "Yangi Turmush"],
+            vobkent: ["Vobkent", "Xalach", "Rabotak", "Pirmast", "Shirin", "Imom Qozixon", "Qipchoq", "Roxkent", "Sarmijon", "Zarafshon"],
+            jondor: ["Jondor", "Dalmun", "Lolo", "Samonchuq", "Paxlavon", "Zarafshon", "Mustaqillik", "Romish", "Qaroli", "Yangiobod"],
+            kogon_t: ["Kogon", "Tutkunda", "Yangiobod", "Siyoz Poyon", "Sarayon", "Niyoz Hojiy", "Bunyodkor", "Xo'ja Yakshaba", "Madalik", "Navbahor"],
+            olot: ["Olot", "Kesakli", "Qirtay", "Sola Qorovul", "Chovdur", "Jayxun", "Ganchi Chandir", "Bo'riqozon", "Qorako'lcha", "Shodlik"],
+            peshku: ["Peshku", "Yangibozor", "Chibog'oni", "Qoraqalpoq", "Zandani", "Bog'imuso", "Qal'ai Mirishkor", "Mahallai Mirishkor", "Navgadi", "Sari Osiyo"],
+            romitan: ["Romitan", "Gazli", "Qo'rg'on", "Qizilravot", "Sho'rcha", "Chelong'u", "Xosa", "Bog'iturkon", "Poykent", "Saidkent"],
+            shofirkon: ["Shofirkon", "Jo'yrabot", "Iskogare", "Tezguzar", "Denov", "Vardonze", "Mirzoqul", "Quyi Chuqurak", "Savrak", "Talisobun"],
+            qorovulbozor: ["Qorovulbozor", "Bo'zachi", "Jarqoq", "Navbahor", "Beshkent", "Do'stlik", "Mustaqillik", "Tinchlik"],
+            qorakul: ["Qorako'l", "Bandboshi", "Sayyod", "Chandirobod", "Salur", "Qozon", "Mallaishayx", "Jig'achi", "Qorahoji", "Solur"],
+            gijduvon: ["G'ijduvon", "Ulfatbibi", "Sarmijon", "Zarangari", "Namatgaron", "Dehqonobod", "Firishkent", "Gajdumak", "Abadi", "Mazragan"]
+        };
+
+        const defaultVillageOptions = ["Navbahor MFY", "Yangiobod", "Zarafshon mahallasi", "Do'stlik ko'chasi", "Istiqlol ko'chasi"];
 
         // Global variables to track state
         let currentRegionKey = 'butun_buxoro';
@@ -1267,11 +1287,73 @@
             });
         }
 
+        function getVillagesForDistrict(districtKey) {
+            return bxh_villages_by_district[districtKey] || defaultVillageOptions;
+        }
+
+        function renderVillageOptions(query = '', forceOpen = false) {
+            const menu = document.getElementById('dropdown-patient-village-menu');
+            const input = document.getElementById('patient-input-village');
+            if (!menu || !input) return;
+
+            const districtKey = getDropdownValue('selected-patient-district-label', 'buxoro_shahar');
+            const normalizedQuery = cleanUzbekText(query);
+            const options = getVillagesForDistrict(districtKey).filter(village =>
+                cleanUzbekText(village).includes(normalizedQuery)
+            );
+
+            menu.innerHTML = '';
+
+            if (options.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'px-3 py-2 text-[11px] font-semibold text-slate-400';
+                empty.textContent = 'Mos mahalla topilmadi';
+                menu.appendChild(empty);
+            } else {
+                options.slice(0, 20).forEach(village => {
+                    menu.appendChild(createDropdownOption({
+                        value: village,
+                        label: village,
+                        selected: input.value.trim() === village,
+                        onSelect: () => selectVillageOption(village)
+                    }));
+                });
+            }
+
+            if (forceOpen || query.trim()) {
+                menu.classList.remove('hidden');
+            } else {
+                menu.classList.add('hidden');
+            }
+        }
+
+        function showVillageOptions(event) {
+            if (event) event.stopPropagation();
+            const input = document.getElementById('patient-input-village');
+            renderVillageOptions(input ? input.value : '', true);
+        }
+
+        function handleVillageSearch(event) {
+            if (event) event.stopPropagation();
+            renderVillageOptions(event.target.value, true);
+        }
+
+        function selectVillageOption(village) {
+            const input = document.getElementById('patient-input-village');
+            if (input) input.value = village;
+            closeDropdownById('dropdown-patient-village-menu');
+        }
+
+        function resetVillageForDistrict() {
+            const input = document.getElementById('patient-input-village');
+            if (input) input.value = '';
+            renderVillageOptions('', false);
+        }
+
         // Bemorlar simulyatsiya ma'lumotlarini yaratish generatori
         function generatePatientDatabase() {
             const ismlar = ["Sardor", "Zilola", "Nodir", "Gulnora", "Shavkat", "Feruza", "Jasur", "Dilshod", "Madina", "Temur", "Lobar", "Bekzod", "Shahnoza", "Rustam", "Otabek", "Malika", "Anvar", "Nigora", "Sherzod", "Dildora", "Bobur", "Kamola", "Siroj", "Guli", "Jamshid", "Zuhra", "Olim", "Munisa"];
             const familiyalar = ["Olimov", "Toirova", "Jalolov", "Ergasheva", "Rahmonov", "Karimova", "Hasanov", "Saidov", "Umarova", "Soliyev", "Axmedova", "To'rayev", "G'ofurova", "Qodirov", "Mamadaliyev", "Sodiqova", "Abduvaliyev", "Raximova", "Alimov", "Yusupova", "Hamroyev", "Bozorova", "Nazarov", "Xalilova", "Ismoilov", "Qurbonova", "Safarov", "Karimiy"];
-            const qishloqlar = ["Navbahor MFY", "Zarafshon mahallasi", "Bog'ikalon qishlog'i", "Do'stlik ko'chasi", "Firishkent MFY", "Raboti Qalmoq", "Istiqlol ko'chasi", "Yangiobod", "Zarangari MFY", "Dehqonobod"];
             const tashxislar = [
                 "Isitma, holsizlik, quruq yo'tal aniqlangan. Shifokor tavsiyalari bo'yicha uyda davolanish rejasi tayinlangan.",
                 "Tomoq og'rig'i, burun bitishi va holsizlik. Profilaktik muolajalar boshlangan, nazoratda.",
@@ -1299,6 +1381,8 @@
                 const infectionDate = `2026-05-0${Math.floor(1 + Math.random() * 9)}`;
                 const status = Math.random() > 0.4 ? "Qabul qilingan" : "Qabul kutilmoqda";
 
+                const districtVillages = bxh_villages_by_district[districtObj.key] || defaultVillageOptions;
+
                 originalPatients.push({
                     id: i,
                     fullName: `${ism} ${familiya}`,
@@ -1310,7 +1394,7 @@
                     pinfl: pinfl,
                     districtKey: districtObj.key,
                     districtName: districtObj.name,
-                    village: qishloqlar[Math.floor(Math.random() * qishloqlar.length)],
+                    village: districtVillages[Math.floor(Math.random() * districtVillages.length)],
                     lastVisit: lastVisit,
                     infectionDate: infectionDate,
                     status: status,
@@ -1459,9 +1543,12 @@
             executePatientSearch();
         }
 
-        function selectPatientDistrict(key, name) {
+        function selectPatientDistrict(key, name, options = {}) {
             setDropdownValue('selected-patient-district-label', key, name);
             closeDropdownById('dropdown-patient-district-menu');
+            if (!options.keepVillage) {
+                resetVillageForDistrict();
+            }
         }
 
         function selectBirthDay(day) {
@@ -2190,7 +2277,7 @@
             document.getElementById('patient-input-pinfl').value = patient.pinfl;
             
             // 3. Yashash tumani (Custom Dropdown)
-            selectPatientDistrict(patient.districtKey, patient.districtName);
+            selectPatientDistrict(patient.districtKey, patient.districtName, { keepVillage: true });
 
             document.getElementById('patient-input-village').value = patient.village;
             document.getElementById('patient-input-lastvisit').value = patient.lastVisit;
