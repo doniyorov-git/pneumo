@@ -34,6 +34,7 @@ try {
             passport_series = :passport_series,
             passport_number = :passport_number,
             pinfl = :pinfl,
+            gender = :gender,
             district_key = :district_key,
             district_name = :district_name,
             village = :village,
