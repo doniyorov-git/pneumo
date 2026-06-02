@@ -1099,7 +1099,7 @@
             shofirkon: ["Shofirkon", "Jo'yrabot", "Iskogare", "Tezguzar", "Denov", "Vardonze", "Mirzoqul", "Quyi Chuqurak", "Savrak", "Talisobun"],
             qorovulbozor: ["Qorovulbozor", "Bo'zachi", "Jarqoq", "Navbahor", "Beshkent", "Do'stlik", "Mustaqillik", "Tinchlik"],
             qorakul: ["Qorako'l", "Bandboshi", "Sayyod", "Chandirobod", "Salur", "Qozon", "Mallaishayx", "Jig'achi", "Qorahoji", "Solur"],
-            gijduvon: ["G'ijduvon", "Ulfatbibi", "Sarmijon", "Zarangari", "Namatgaron", "Dehqonobod", "Firishkent", "Gajdumak", "Abadi", "Mazragan"]
+            gijduvon: ["G'ijduvon", "Chag'dari MFY", "Ulfatbibi", "Sarmijon", "Zarangari", "Namatgaron", "Dehqonobod", "Firishkent", "Gajdumak", "Abadi", "Mazragan"]
         };
 
         const defaultVillageOptions = ["Navbahor MFY", "Yangiobod", "Zarafshon mahallasi", "Do'stlik ko'chasi", "Istiqlol ko'chasi"];
@@ -1150,10 +1150,7 @@
         function cleanUzbekText(text) {
             if (!text) return "";
             return text.toLowerCase()
-                .replace(/ʻ/g, '')
-                .replace(/‘/g, '')
-                .replace(/’/g, '')
-                .replace(/['`]/g, '')
+                .replace(/[ʻʼ‘’`´']/g, '')
                 .trim();
         }
 
@@ -2614,6 +2611,7 @@
         window.onload = function() {
             generatePatientDatabase();
             loadRegionSelectorsAndLists();
+            loadVillageDataset();
             initPatientFormInputs();
             initDiseaseChart();
             
