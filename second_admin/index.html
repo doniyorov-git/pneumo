@@ -174,7 +174,7 @@
                     </div>
                     <div>
                         <h4 class="text-[9px] text-blue-200 font-medium tracking-wide">Mas'ul Shifokor</h4>
-                        <h2 class="text-xs font-bold text-white hover:text-blue-100 transition-colors cursor-pointer">Dr. Sherzod Alimov</h2>
+                        <h2 id="header-doctor-name" class="text-xs font-bold text-white hover:text-blue-100 transition-colors cursor-pointer">Dr. Sherzod Alimov</h2>
                     </div>
                 </div>
                 
@@ -607,10 +607,10 @@
                                     <span class="w-2 h-2 bg-indigo-500 rounded-full inline-block"></span>
                                     Bolalar (0-14 yosh)
                                 </span>
-                                <span class="text-indigo-600 font-bold">18%</span>
+                                <span id="age-children-percent" class="text-indigo-600 font-bold">0%</span>
                             </div>
                             <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="bg-indigo-500 h-full rounded-full" style="width: 18%"></div>
+                                <div id="age-children-bar" class="bg-indigo-500 h-full rounded-full" style="width: 0%"></div>
                             </div>
                         </div>
                         
@@ -620,10 +620,10 @@
                                     <span class="w-2 h-2 bg-blue-600 rounded-full inline-block"></span>
                                     Kattalar (15-60 yosh)
                                 </span>
-                                <span class="text-blue-600 font-bold">70%</span>
+                                <span id="age-adults-percent" class="text-blue-600 font-bold">0%</span>
                             </div>
                             <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="bg-blue-600 h-full rounded-full" style="width: 70%"></div>
+                                <div id="age-adults-bar" class="bg-blue-600 h-full rounded-full" style="width: 0%"></div>
                             </div>
                         </div>
 
@@ -633,10 +633,10 @@
                                     <span class="w-2 h-2 bg-emerald-500 rounded-full inline-block"></span>
                                     Keksalar (60+ yosh)
                                 </span>
-                                <span class="text-emerald-600 font-bold">12%</span>
+                                <span id="age-seniors-percent" class="text-emerald-600 font-bold">0%</span>
                             </div>
                             <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="bg-emerald-500 h-full rounded-full" style="width: 12%"></div>
+                                <div id="age-seniors-bar" class="bg-emerald-500 h-full rounded-full" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
@@ -653,12 +653,12 @@
                     
                     <div class="space-y-3 text-xs">
                         <div class="flex justify-between text-[11px] font-bold text-slate-600">
-                            <span>Erkaklar (55%)</span>
-                            <span>Ayollar (45%)</span>
+                            <span id="gender-male-label">Erkaklar (0%)</span>
+                            <span id="gender-female-label">Ayollar (0%)</span>
                         </div>
                         <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
-                            <div class="bg-blue-500 h-full" style="width: 55%"></div>
-                            <div class="bg-rose-400 h-full" style="width: 45%"></div>
+                            <div id="gender-male-bar" class="bg-blue-500 h-full" style="width: 0%"></div>
+                            <div id="gender-female-bar" class="bg-rose-400 h-full" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
@@ -905,6 +905,20 @@
                         </div>
                     </div>
 
+                    <!-- JINS TANLASH -->
+                    <div class="space-y-1 bg-rose-50/30 p-3 rounded-[12px] border border-rose-100/50">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Bemor Jinsi</label>
+                        <div class="relative" id="dropdown-patient-gender">
+                            <div role="button" tabindex="0" onclick="toggleCustomDropdown('dropdown-patient-gender-menu', event)" onkeydown="handleDropdownKeydown(event, 'dropdown-patient-gender-menu')" aria-haspopup="listbox" aria-expanded="false" class="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-[10px] flex justify-between items-center font-semibold text-slate-800 cursor-pointer hover:border-rose-300 transition-colors">
+                                <span id="selected-patient-gender-label" data-value="male">Erkak</span>
+                                <i class="ri-arrow-down-s-line text-slate-400"></i>
+                            </div>
+                            <div id="dropdown-patient-gender-menu" role="listbox" class="patient-dropdown-menu absolute hidden w-full left-0 mt-1 bg-white border border-slate-200 rounded-[10px] shadow-lg z-[120] custom-dropdown-list">
+                                <!-- JS orqali to'ldiriladi -->
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- PASPORT SERIYA & RAQAM -->
                     <div class="space-y-1 bg-blue-50/30 p-3 rounded-[12px] border border-blue-100/50">
                         <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Pasport Hujjati</label>
@@ -1123,6 +1137,10 @@
         };
 
         const defaultVillageOptions = ["Navbahor MFY", "Yangiobod", "Zarafshon mahallasi", "Do'stlik ko'chasi", "Istiqlol ko'chasi"];
+        const patientGenderOptions = [
+            { value: 'male', label: 'Erkak' },
+            { value: 'female', label: 'Ayol' }
+        ];
 
         // Global variables to track state
         let currentRegionKey = 'butun_buxoro';
@@ -1211,6 +1229,7 @@
                 passportSeries: row.passportSeries || row.passport_series || '',
                 passportNumber: row.passportNumber || row.passport_number || '',
                 pinfl: row.pinfl || '',
+                gender: row.gender || 'male',
                 districtKey: row.districtKey || row.district_key || '',
                 districtName: row.districtName || row.district_name || '',
                 village: row.village || '',
@@ -1220,7 +1239,8 @@
                 details: row.details || '',
                 isSource: String(row.isSource ?? row.is_source ?? '0') === '1',
                 sourcePatientId: row.sourcePatientId || row.source_patient_id || null,
-                sourceFullName: row.sourceFullName || row.source_full_name || ''
+                sourceFullName: row.sourceFullName || row.source_full_name || '',
+                createdAt: row.createdAt || row.created_at || ''
             };
         }
 
@@ -1234,6 +1254,7 @@
                 passportSeries: patient.passportSeries,
                 passportNumber: patient.passportNumber,
                 pinfl: patient.pinfl,
+                gender: patient.gender,
                 districtKey: patient.districtKey,
                 districtName: patient.districtName,
                 village: patient.village,
@@ -1273,33 +1294,103 @@
             }
         }
 
+        function updateHeaderDoctorName() {
+            const headerName = document.getElementById('header-doctor-name');
+            if (headerName && currentUser) {
+                headerName.textContent = currentUser.full_name || currentUser.district_name || 'Masʼul shifokor';
+            }
+        }
+
+        function percent(part, total) {
+            if (!total) return 0;
+            return Math.round((part / total) * 100);
+        }
+
+        function emptyRegionalStats() {
+            return {
+                total_patients: 0,
+                new_weekly: 0,
+                critical: 0,
+                appointments: 0,
+                total_patients_trend: '0%',
+                new_weekly_trend: '0%',
+                critical_trend: '0%',
+                appointments_trend: '0%',
+                distribution: { total: 0, qabulda: 0, shifoxona: 0, uyda: 0, sogaygan: 0 },
+                chartData: Array(12).fill(0),
+                ageGroups: { children: 0, adults: 0, seniors: 0 },
+                genderStats: { male: 0, female: 0 }
+            };
+        }
+
+        function addPatientToStats(stats, patient) {
+            stats.total_patients += 1;
+            if (patient.isSource || patient.sourcePatientId) stats.new_weekly += 1;
+            if (!patient.isSource && !patient.sourcePatientId) stats.critical += 1;
+
+            stats.distribution.total += 1;
+            if (patient.status === 'Qabul qilingan') {
+                stats.distribution.shifoxona += 1;
+            } else if (patient.status === "Sog'aygan") {
+                stats.distribution.sogaygan += 1;
+            } else if (patient.status === 'Uy sharoitida') {
+                stats.distribution.uyda += 1;
+            } else {
+                stats.distribution.qabulda += 1;
+            }
+
+            const age = CURRENT_YEAR - Number(patient.birthYear || CURRENT_YEAR);
+            if (age <= 14) stats.ageGroups.children += 1;
+            else if (age >= 60) stats.ageGroups.seniors += 1;
+            else stats.ageGroups.adults += 1;
+
+            if (patient.gender === 'female') stats.genderStats.female += 1;
+            else stats.genderStats.male += 1;
+
+            const monthIndex = Number((patient.infectionDate || '').split('-')[1]) - 1;
+            if (monthIndex >= 0 && monthIndex < 12) stats.chartData[monthIndex] += 1;
+        }
+
+        function updateDemographicStats(data) {
+            const total = data.total_patients || 0;
+            const ageChildren = percent(data.ageGroups.children, total);
+            const ageAdults = percent(data.ageGroups.adults, total);
+            const ageSeniors = percent(data.ageGroups.seniors, total);
+            const male = percent(data.genderStats.male, total);
+            const female = total ? 100 - male : 0;
+
+            const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+            const setWidth = (id, value) => { const el = document.getElementById(id); if (el) el.style.width = `${value}%`; };
+
+            setText('age-children-percent', `${ageChildren}%`);
+            setText('age-adults-percent', `${ageAdults}%`);
+            setText('age-seniors-percent', `${ageSeniors}%`);
+            setWidth('age-children-bar', ageChildren);
+            setWidth('age-adults-bar', ageAdults);
+            setWidth('age-seniors-bar', ageSeniors);
+
+            setText('gender-male-label', `Erkaklar (${male}%)`);
+            setText('gender-female-label', `Ayollar (${female}%)`);
+            setWidth('gender-male-bar', male);
+            setWidth('gender-female-bar', female);
+        }
+
         function resetRegionalStatisticsFromPatients() {
             Object.keys(regionalStatistics).forEach((key) => {
-                regionalStatistics[key].total_patients = 0;
-                regionalStatistics[key].new_weekly = 0;
-                regionalStatistics[key].critical = 0;
-                regionalStatistics[key].appointments = 0;
-                regionalStatistics[key].distribution = { total: 0, qabulda: 0, shifoxona: 0, uyda: 0, sogaygan: 0 };
+                regionalStatistics[key] = { ...regionalStatistics[key], ...emptyRegionalStats() };
             });
 
             originalPatients.forEach((patient) => {
                 ['butun_buxoro', patient.districtKey].forEach((key) => {
-                    if (!regionalStatistics[key]) return;
-                    regionalStatistics[key].total_patients += 1;
-                    regionalStatistics[key].new_weekly += 1;
-                    if (patient.isSource) regionalStatistics[key].critical += 1;
-                    regionalStatistics[key].distribution.total += 1;
-                    if (patient.status === 'Qabul qilingan') {
-                        regionalStatistics[key].distribution.shifoxona += 1;
-                    } else {
-                        regionalStatistics[key].distribution.qabulda += 1;
-                    }
+                    if (!regionalStatistics[key]) regionalStatistics[key] = emptyRegionalStats();
+                    addPatientToStats(regionalStatistics[key], patient);
                 });
             });
 
             patientCalls.forEach((call) => {
                 ['butun_buxoro', call.district_key].forEach((key) => {
-                    if (regionalStatistics[key]) regionalStatistics[key].appointments += 1;
+                    if (!regionalStatistics[key]) regionalStatistics[key] = emptyRegionalStats();
+                    regionalStatistics[key].appointments += 1;
                 });
             });
         }
@@ -1327,6 +1418,7 @@
             const data = await apiRequest('get_patient.php');
             currentUser = data.user || getStoredUser();
             if (currentUser) localStorage.setItem('pneumo_user', JSON.stringify(currentUser));
+            updateHeaderDoctorName();
             originalPatients = (data.patients || []).map(normalizePatient);
             filteredPatients = [...originalPatients];
             patientCalls = data.calls || [];
@@ -1837,6 +1929,11 @@
             closeDropdownById('dropdown-patient-status-menu');
         }
 
+        function selectPatientGender(value, label) {
+            setDropdownValue('selected-patient-gender-label', value, label);
+            closeDropdownById('dropdown-patient-gender-menu');
+        }
+
         // Tuman kartasidan bemorlarni filtrlab ochish funksiyasi
         function selectDistrictFromCard(key) {
             const dObj = bxh_districts.find(d => d.key === key);
@@ -1861,11 +1958,13 @@
             const infMonthMenu = document.getElementById('dropdown-inf-month-menu');
             const infYearMenu = document.getElementById('dropdown-inf-year-menu');
             const patientStatusMenu = document.getElementById('dropdown-patient-status-menu');
+            const patientGenderMenu = document.getElementById('dropdown-patient-gender-menu');
 
             dropdownContainer.innerHTML = '';
             districtListContainer.innerHTML = '';
             filterDistrictMenu.innerHTML = '';
             patientDistrictMenu.innerHTML = '';
+            if(patientGenderMenu) patientGenderMenu.innerHTML = '';
             if(reportRegionOptionsContainer) reportRegionOptionsContainer.innerHTML = '';
 
             // Barcha tumanlar qidiruv filtri uchun "Barcha" varianti
@@ -1902,6 +2001,14 @@
                 selectPatientStatus,
                 getDropdownValue('selected-patient-status-label', patientStatuses[0])
             );
+            if (patientGenderMenu) {
+                buildDropdownOptions(
+                    patientGenderMenu,
+                    patientGenderOptions,
+                    selectPatientGender,
+                    getDropdownValue('selected-patient-gender-label', patientGenderOptions[0].value)
+                );
+            }
 
             bxh_districts.forEach(d => {
                 // 1. Dashboard Custom Switcher Dropdown
@@ -2031,6 +2138,7 @@
             document.getElementById('trend-appointments').textContent = data.appointments_trend;
 
             updateSegmentedBar(data.distribution);
+            updateDemographicStats(data);
             triggerStatisticsCounters();
 
             if (diseaseChartInstance) {
@@ -2044,14 +2152,14 @@
         function updateSegmentedBar(dist) {
             document.getElementById('segment-total-label').textContent = `${dist.total} ta joriy holat`;
             document.getElementById('segment-1').style.flex = dist.qabulda;
-            document.getElementById('segment-2').style.flex = dist.shifoxona || 25;
-            document.getElementById('segment-3').style.flex = dist.uyda || 15;
-            document.getElementById('segment-4').style.flex = dist.sogaygan || 10;
+            document.getElementById('segment-2').style.flex = dist.shifoxona;
+            document.getElementById('segment-3').style.flex = dist.uyda;
+            document.getElementById('segment-4').style.flex = dist.sogaygan;
 
             document.getElementById('val-segment-1').textContent = `${dist.qabulda} ta shaxs`;
-            document.getElementById('val-segment-2').textContent = `${dist.shifoxona || 25} ta shaxs`;
-            document.getElementById('val-segment-3').textContent = `${dist.uyda || 15} ta shaxs`;
-            document.getElementById('val-segment-4').textContent = `${dist.sogaygan || 10} ta shaxs`;
+            document.getElementById('val-segment-2').textContent = `${dist.shifoxona} ta shaxs`;
+            document.getElementById('val-segment-3').textContent = `${dist.uyda} ta shaxs`;
+            document.getElementById('val-segment-4').textContent = `${dist.sogaygan} ta shaxs`;
         }
 
         // Numerical value smooth counting-up animation
@@ -2471,6 +2579,7 @@
             selectBirthDay(1);
             selectBirthMonth(1, "Yanvar");
             selectBirthYear(1995);
+            selectPatientGender('male', 'Erkak');
             document.getElementById('patient-input-passport-series').value = "";
             document.getElementById('patient-input-passport-number').value = "";
             document.getElementById('patient-input-pinfl').value = "";
@@ -2529,6 +2638,8 @@
             const monthLabelName = mObj ? mObj.name : "Yanvar";
             
             selectBirthMonth(birthMonthVal, monthLabelName);
+            const genderObj = patientGenderOptions.find(g => g.value === patient.gender) || patientGenderOptions[0];
+            selectPatientGender(genderObj.value, genderObj.label);
 
             // 2. Pasport va PINFL
             document.getElementById('patient-input-passport-series').value = patient.passportSeries;
@@ -2609,6 +2720,7 @@
             const passportSeries = document.getElementById('patient-input-passport-series').value.trim().toUpperCase();
             const passportNumber = document.getElementById('patient-input-passport-number').value.trim();
             const pinfl = document.getElementById('patient-input-pinfl').value.trim();
+            const gender = getDropdownValue('selected-patient-gender-label', 'male');
             const districtKey = getDropdownValue('selected-patient-district-label');
             const village = document.getElementById('patient-input-village').value.trim();
             const lastVisit = document.getElementById('patient-input-lastvisit').value.trim();
@@ -2660,6 +2772,7 @@
                 passportSeries,
                 passportNumber,
                 pinfl,
+                gender,
                 districtKey,
                 districtName: distObj ? distObj.name : districtKey,
                 village: village || "Kiritilmagan",

@@ -5,10 +5,10 @@ session_start();
 
 header('Content-Type: application/json; charset=utf-8');
 
-const DB_HOST = '127.0.0.1';
-const DB_NAME = 'pneumo_monitoring';
-const DB_USER = 'root';
-const DB_PASS = '';
+const DB_HOST = 'localhost';
+const DB_NAME = 'pneumo';
+const DB_USER = 'pneumo';
+const DB_PASS = 'Buxoro2025';
 
 function db(): PDO
 {
@@ -132,6 +132,7 @@ function patient_payload(array $data): array
         'passport_series' => strtoupper(trim((string)($data['passportSeries'] ?? $data['passport_series'] ?? ''))),
         'passport_number' => trim((string)($data['passportNumber'] ?? $data['passport_number'] ?? '')),
         'pinfl' => trim((string)($data['pinfl'] ?? '')),
+        'gender' => trim((string)($data['gender'] ?? 'male')),
         'district_key' => $districtKey,
         'district_name' => $districtName,
         'village' => trim((string)($data['village'] ?? '')),
@@ -161,6 +162,10 @@ function validate_patient_payload(array $patient): void
 
     if (!preg_match('/^\d{14}$/', $patient['pinfl'])) {
         respond(['success' => false, 'message' => 'JShShIR 14 xonali bo‘lishi kerak.'], 422);
+    }
+
+    if (!in_array($patient['gender'], ['male', 'female'], true)) {
+        respond(['success' => false, 'message' => 'Bemor jinsi noto‘g‘ri tanlangan.'], 422);
     }
 }
 

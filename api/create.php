@@ -17,11 +17,11 @@ try {
 
     $stmt = $pdo->prepare(
         'INSERT INTO patients (
-            full_name, birth_day, birth_month, birth_year, passport_series, passport_number, pinfl,
+            full_name, birth_day, birth_month, birth_year, passport_series, passport_number, pinfl, gender,
             district_key, district_name, village, last_visit, infection_date, status, details,
             source_patient_id, created_by, updated_by
         ) VALUES (
-            :full_name, :birth_day, :birth_month, :birth_year, :passport_series, :passport_number, :pinfl,
+            :full_name, :birth_day, :birth_month, :birth_year, :passport_series, :passport_number, :pinfl, :gender,
             :district_key, :district_name, :village, :last_visit, :infection_date, :status, :details,
             :source_patient_id, :created_by, :updated_by
         )'
