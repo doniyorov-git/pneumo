@@ -1291,6 +1291,33 @@
             return bxh_villages_by_district[districtKey] || defaultVillageOptions;
         }
 
+        function hydrateVillagesFromCompleteJson(data) {
+            const districts = data && data.region && Array.isArray(data.region.districts) ? data.region.districts : [];
+            const normalizeName = (value) => cleanUzbekText(value).replace(/shahri$/, 'shahar').replace(/tumani$/, 'tumani');
+
+            bxh_districts.forEach(district => {
+                if (district.key === 'butun_buxoro') return;
+                const matched = districts.find(item => normalizeName(item.name_uz) === normalizeName(district.name));
+                if (!matched || !Array.isArray(matched.quarters)) return;
+                bxh_villages_by_district[district.key] = matched.quarters.map(quarter => quarter.name_uz);
+            });
+        }
+
+        function loadVillageDataset() {
+            if (typeof fetch !== 'function') return;
+
+            fetch('buxoro_complete.json')
+                .then(response => response.ok ? response.json() : null)
+                .then(data => {
+                    if (!data) return;
+                    hydrateVillagesFromCompleteJson(data);
+                    renderVillageOptions('', false);
+                })
+                .catch(() => {
+                    // File ochilganda fetch ishlamasligi mumkin; fallback ro'yxatlar ishlayveradi.
+                });
+        }
+
         function renderVillageOptions(query = '', forceOpen = false) {
             const menu = document.getElementById('dropdown-patient-village-menu');
             const input = document.getElementById('patient-input-village');
